@@ -17,8 +17,6 @@ export async function action(props: NewSubscriptionProps) {
     throw new Error("Not authenticated.");
   }
 
-  console.log(props);
-
   const user = client.authStore.record;
 
   await client.collection("subscriptions").create({ ...form, user: user?.id });
