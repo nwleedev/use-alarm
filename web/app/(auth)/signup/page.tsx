@@ -7,9 +7,11 @@ import { AuthSchemaLibs, SignUpProps } from "@/lib/auth/schema";
 import { usePocketClient } from "@/provider/PocketBase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export default function Page() {
+  const router = useRouter();
   const { register, formState, handleSubmit } = useForm<SignUpProps>({
     resolver: zodResolver(AuthSchemaLibs.signUp),
   });
@@ -19,6 +21,8 @@ export default function Page() {
     const model = await client
       .collection("users")
       .create({ email, password, name, passwordConfirm });
+
+    router.push("/signin");
   });
   return (
     <div className="flex w-full flex-col flex-1">

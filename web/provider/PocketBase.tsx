@@ -11,8 +11,18 @@ const PocketBaseProvider = (props: PropsWithChildren) => {
   const client = PocketBaseLibs.getClient();
 
   useEffect(() => {
-    client.authStore.loadFromCookie(document.cookie);
-    client.collection("users").authRefresh();
+    try {
+      client.authStore.loadFromCookie(document.cookie);
+      client.collection("users").authRefresh();
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        "statusCode" in error &&
+        error.statusCode === 401
+      ) {
+        return;
+      }
+    }
   }, [client]);
 
   return (
