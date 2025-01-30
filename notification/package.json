@@ -13,5 +13,7 @@
     "@types/node": "^20",
     "typescript": "^5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  }
 }
