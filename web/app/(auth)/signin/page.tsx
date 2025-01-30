@@ -22,9 +22,9 @@ export default function Page() {
       .authWithPassword(form.email, form.password);
 
     const exportedCookie = client.authStore.exportToCookie({ httpOnly: false });
-    document.cookie += `;${exportedCookie};`;
+    document.cookie += `${exportedCookie};`;
 
-    client.collection("users").authRefresh();
+    await client.collection("users").authRefresh();
     router.push("/");
   });
   return (

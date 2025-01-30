@@ -51,7 +51,7 @@ export default function Page() {
             <Label>Password confirm</Label>
             <Input type="password" {...register("passwordConfirm")} />
           </div>
-          <Button type="submit">Sign In</Button>
+          <Button type="submit">Sign Up</Button>
         </form>
         <div className="flex w-full items-center p-4">
           <Link
