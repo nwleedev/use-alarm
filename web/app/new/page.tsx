@@ -244,3 +244,5 @@ const WeekInput = () => {
     </div>
   );
 };
+
+export const runtime = "edge";

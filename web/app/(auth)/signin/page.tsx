@@ -23,6 +23,8 @@ export default function Page() {
 
     const exportedCookie = client.authStore.exportToCookie({ httpOnly: false });
     document.cookie += `;${exportedCookie};`;
+
+    client.collection("users").authRefresh();
     router.push("/");
   });
   return (
