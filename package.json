@@ -9,6 +9,14 @@
     "dev:db": "./db/pocketbase serve --http=\"127.0.0.1:3002\""
   },
   "keywords": [],
+  "dependencies": {
+    "pocketbase": "^0.25.0",
+    "web-push": "^3.6.7",
+    "date-fns": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/web-push": "^3.6.4"
+  },
   "author": "",
   "license": "ISC"
 }
