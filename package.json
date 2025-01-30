@@ -6,7 +6,10 @@
   "scripts": {
     "dev:web": "pnpm --filter=web run dev --port=3001",
     "dev:web-host": "pnpm --filter=web run dev --port=3001 -H 0.0.0.0",
-    "dev:db": "./db/pocketbase serve --http=\"127.0.0.1:3002\""
+    "dev:db": "./db/pocketbase serve --http=\"127.0.0.1:3002\"",
+    "pages:build": "pnpm --filter=web run pages:build",
+    "preview": "pnpm --filter=web run preview",
+    "deploy": "pnpm --filter=web run deploy"
   },
   "keywords": [],
   "dependencies": {
