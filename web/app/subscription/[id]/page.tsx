@@ -14,7 +14,7 @@ import { DateLibs } from "@/lib/date";
 import { SubscriptionType } from "@/lib/subscription/enum";
 import { Subscription } from "@/models/subscription";
 import { usePocketClient } from "@/provider/PocketBase";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -22,6 +22,7 @@ import { useParams, useRouter } from "next/navigation";
 export default function Page() {
   const { id } = useParams<{ id: string }>();
   const client = usePocketClient();
+  const queryClient = useQueryClient();
   const router = useRouter();
   const { data, isLoading } = useQuery({
     queryKey: ["SUBSCRIPTION", id] as const,
@@ -37,12 +38,18 @@ export default function Page() {
   });
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["SUBSCRIPTION_DELETE"],
-    mutationFn: async (id: string) => {
-      await client.collection("subscriptions").delete(id);
+    mutationFn: async (args: { id: string; type: SubscriptionType }) => {
+      await client.collection("subscriptions").delete(args.id);
 
       return { id };
     },
-    onSuccess: () => {
+    onSuccess: (...args) => {
+      const [, vars] = args;
+      if (vars.type === SubscriptionType.MONTH) {
+        queryClient.refetchQueries({ queryKey: ["SUBSCRIPTION_MONTH"] });
+      } else {
+        queryClient.refetchQueries({ queryKey: ["SUBSCRIPTION_WEEK"] });
+      }
       router.push("/");
     },
   });
@@ -125,7 +132,10 @@ export default function Page() {
                       className="w-full text-white bg-red-500"
                       disabled={isPending}
                       onClick={() => {
-                        mutateAsync(data.id);
+                        mutateAsync({
+                          id: data.id,
+                          type: data.type as SubscriptionType,
+                        });
                       }}
                     >
                       Confirm

@@ -28,6 +28,7 @@ import {
   SubscriptionSchemaLibs,
 } from "@/lib/subscription/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { getDate, subDays } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
@@ -42,6 +43,7 @@ import { action } from "./action";
 
 export default function Page() {
   const [now] = useState(new Date());
+  const client = useQueryClient();
   const methods = useForm<NewSubscriptionProps>({
     resolver: zodResolver(SubscriptionSchemaLibs.new),
     defaultValues: {
@@ -51,8 +53,13 @@ export default function Page() {
     },
   });
   const { handleSubmit, register, setValue, control } = methods;
-  const onSubmit = handleSubmit((form) => {
-    action(form);
+  const onSubmit = handleSubmit(async (form) => {
+    await action(form);
+    if (form.type === SubscriptionType.MONTH) {
+      client.refetchQueries({ queryKey: ["SUBSCRIPTION_MONTH"] });
+    } else {
+      client.refetchQueries({ queryKey: ["SUBSCRIPTION_WEEK"] });
+    }
   });
   const {
     field: { value: icon },
