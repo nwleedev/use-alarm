@@ -73,7 +73,9 @@ export default function Page() {
         <Link href="/">
           <ChevronLeft />
         </Link>
-        <h1 className="">New Subscription</h1>
+        <h2 className="font-semibold whitespace-nowrap flex-shrink-0">
+          New Subscription
+        </h2>
       </div>
       <FormProvider {...methods}>
         <div className="w-full flex flex-col flex-1 p-4">

@@ -60,7 +60,7 @@ export default function Page() {
           <Link href={"/"}>
             <ChevronLeftIcon />
           </Link>
-          <h2 className="text-xl font-semibold whitespace-nowrap flex-shrink-0">
+          <h2 className="font-semibold whitespace-nowrap flex-shrink-0">
             Detail
           </h2>
         </div>
@@ -91,7 +91,7 @@ export default function Page() {
                 <p className="text-gray-600 font-normal">{data.amount}</p>
               </div>
               <div className="w-full flex items-center justify-between gap-x-2 py-4">
-                <h3 className="font-medium">Payment Date</h3>
+                <h3 className="font-medium">Payment date</h3>
                 <p className="text-gray-600 font-normal">
                   {data.type === SubscriptionType.MONTH
                     ? DateLibs.formatDate(data.payment)
@@ -99,11 +99,10 @@ export default function Page() {
                 </p>
               </div>
               <div className="w-full flex items-center justify-between gap-x-2 py-4">
-                <h3 className="font-medium">Alarm Date</h3>
+                <h3 className="font-medium">Alarm before days</h3>
                 <p className="text-gray-600 font-normal">
-                  {data.type === SubscriptionType.MONTH
-                    ? DateLibs.formatDate(data.alarm)
-                    : DateLibs.formatDay(data.alarm, "EEEE")}
+                  {data.alarm === 1 && `${data.alarm} day`}
+                  {data.alarm !== 1 && `${data.alarm} days`}
                 </p>
               </div>
             </div>

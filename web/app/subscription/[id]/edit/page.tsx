@@ -266,7 +266,9 @@ export default function Page() {
         <Link href="/">
           <ChevronLeft />
         </Link>
-        <h1 className="">Edit Subscription</h1>
+        <h2 className="font-semibold whitespace-nowrap flex-shrink-0">
+          Edit Subscription
+        </h2>
       </div>
       <Suspense>{isFetched && <EditForm />}</Suspense>
     </div>

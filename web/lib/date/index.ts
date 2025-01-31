@@ -14,12 +14,10 @@ export class DateLibs {
   };
 
   static formatBeforeDays = (days: number) => {
-    const formatted = String(days).padStart(2, "0");
-
     if (days === 1) {
-      return `${formatted} day`;
+      return `${days} day`;
     } else {
-      return `${formatted} days`;
+      return `${days} days`;
     }
   };
 }

@@ -22,7 +22,7 @@ export default function Page() {
         <Link href={"/"}>
           <ChevronLeft />
         </Link>
-        <h2 className="text-xl font-semibold whitespace-nowrap flex-shrink-0">
+        <h2 className="font-semibold whitespace-nowrap flex-shrink-0">
           Account
         </h2>
       </div>
