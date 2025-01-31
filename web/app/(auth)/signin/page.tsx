@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { AuthSchemaLibs, SignInProps } from "@/lib/auth/schema";
 import { usePocketClient } from "@/provider/PocketBase";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { addDays } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -21,7 +22,11 @@ export default function Page() {
       .collection("users")
       .authWithPassword(form.email, form.password);
 
-    const exportedCookie = client.authStore.exportToCookie({ httpOnly: false });
+    const expires = addDays(new Date(), 7);
+    const exportedCookie = client.authStore.exportToCookie({
+      httpOnly: false,
+      expires,
+    });
     document.cookie = exportedCookie;
 
     await client.collection("users").authRefresh();
