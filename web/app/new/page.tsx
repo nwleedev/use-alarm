@@ -179,14 +179,14 @@ const MonthInput = () => {
   return (
     <div className="flex items-center gap-x-2 w-full">
       <div className="flex flex-col gap-y-2 w-full">
-        <Label>Payment Day</Label>
+        <Label>Payment Date</Label>
         <Input
           type="number"
           {...register("payment", { valueAsNumber: true })}
         />
       </div>
       <div className="flex flex-col gap-y-2 w-full">
-        <Label>Alarm Day</Label>
+        <Label>Alarm before days</Label>
         <Input type="number" {...register("alarm", { valueAsNumber: true })} />
       </div>
     </div>

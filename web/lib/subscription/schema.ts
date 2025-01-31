@@ -7,8 +7,8 @@ class SubscriptionSchemaLibs {
     icon: zod.string().optional(),
     amount: zod.number(),
     type: zod.string().max(31).trim().optional(),
-    payment: zod.number().max(31),
-    alarm: zod.number().max(31),
+    payment: zod.number().max(31).min(1),
+    alarm: zod.number().max(31).min(1),
   });
 }
 

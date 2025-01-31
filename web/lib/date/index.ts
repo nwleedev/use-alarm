@@ -12,4 +12,14 @@ export class DateLibs {
     const date = new Date();
     return format(setDay(date, day), formatStr);
   };
+
+  static formatBeforeDays = (days: number) => {
+    const formatted = String(days).padStart(2, "0");
+
+    if (days === 1) {
+      return `${formatted} day`;
+    } else {
+      return `${formatted} days`;
+    }
+  };
 }
