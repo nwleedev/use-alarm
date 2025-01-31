@@ -1,4 +1,13 @@
-import { addMonths, getDate, intervalToDuration, setDate } from "date-fns";
+import {
+  format,
+  getDate,
+  getDay,
+  getMonth,
+  lastDayOfMonth,
+  setDate,
+  setDay,
+  subDays,
+} from "date-fns";
 import dotenv from "dotenv";
 import { Notification } from "models/notification";
 import { Subscription } from "models/subscription";
@@ -21,8 +30,6 @@ const app = async () => {
   const now = new Date();
   const api = "http://127.0.0.1:3002";
   const pocketbase = new PocketBase(api);
-
-  const email = process.env.ADMIN_EMAIL;
 
   const notis = await pocketbase
     .collection("notifications")
@@ -47,28 +54,63 @@ const app = async () => {
       const subLen = subs.length;
       for (let i = 0; i < subLen; i++) {
         const sub = subs[i];
-        let alarm = new Date();
-        let payment = new Date();
-        alarm = setDate(alarm, sub.alarm);
-        payment = setDate(payment, sub.payment);
-        if (sub.alarm > sub.payment) {
-          payment = addMonths(payment, 1);
-        }
 
-        const duration = intervalToDuration({ start: alarm, end: payment });
-        const body = `${sub.name} Payment will be charged after ${String(
-          duration.days ?? 0
-        ).padStart(2, "0")} ${duration.days === 1 ? `day` : `days`}.`;
+        if (sub.type === "MONTH") {
+          const now = new Date();
+          let payment = setDate(new Date(), sub.payment);
 
-        if (getDate(now) === getDate(alarm)) {
-          await webpush.sendNotification(
-            { endpoint: item.endpoint, keys: item.keys },
-            JSON.stringify({
-              title: "Payment Alarm - Use Alarm",
-              body,
-              icon: sub.icon,
-            })
-          );
+          if (getMonth(payment) !== getMonth(now)) {
+            payment = lastDayOfMonth(now);
+          }
+
+          const alarm = subDays(payment, sub.alarm);
+          const body = `${sub.name} Payment will be charged after ${
+            sub.alarm
+          } ${sub.alarm === 1 ? `day` : `days`}.`;
+
+          if (getDate(now) === getDate(alarm)) {
+            await webpush.sendNotification(
+              { endpoint: item.endpoint, keys: item.keys },
+              JSON.stringify({
+                title: "Payment Alarm - Use Alarm",
+                body,
+                icon: sub.icon,
+              })
+            );
+          }
+        } else if (sub.type === "WEEK") {
+          const day = getDay(new Date());
+          if (day === sub.alarm) {
+            if (sub.alarm <= sub.payment) {
+              const payment = setDay(new Date(), sub.payment);
+              const body = `${sub.name} Payment will be charged this ${format(
+                payment,
+                "EEEE"
+              )}`;
+              await webpush.sendNotification(
+                { endpoint: item.endpoint, keys: item.keys },
+                JSON.stringify({
+                  title: "Payment Alarm - Use Alarm",
+                  body,
+                  icon: sub.icon,
+                })
+              );
+            } else {
+              const payment = setDay(new Date(), sub.payment);
+              const body = `${sub.name} Payment will be charged next ${format(
+                payment,
+                "EEEE"
+              )}`;
+              await webpush.sendNotification(
+                { endpoint: item.endpoint, keys: item.keys },
+                JSON.stringify({
+                  title: "Payment Alarm - Use Alarm",
+                  body,
+                  icon: sub.icon,
+                })
+              );
+            }
+          }
         }
       }
     } catch (error) {
