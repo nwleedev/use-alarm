@@ -1,7 +1,6 @@
 "use server";
 
 import PocketBaseLibs from "@/lib/pocket-base";
-import { SubscriptionType } from "@/lib/subscription/enum";
 import {
   NewSubscriptionProps,
   SubscriptionSchemaLibs,
@@ -22,7 +21,7 @@ export async function action(id: string, props: NewSubscriptionProps) {
 
   await client
     .collection("subscriptions")
-    .update(id, { ...form, type: SubscriptionType.MONTH, user: user?.id });
+    .update(id, { ...form, user: user?.id });
 
   redirect(`/subscription/${id}`);
 }
