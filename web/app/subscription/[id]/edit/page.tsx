@@ -64,6 +64,7 @@ function EditForm() {
       name: data?.name,
       icon: data?.icon,
       description: data?.description,
+      type: data?.type,
       amount: data?.amount,
       payment: data?.payment,
       alarm: data?.alarm,
@@ -76,6 +77,7 @@ function EditForm() {
     refetch();
   });
   const { field } = useController({ control, name: "icon" });
+  const { field: type } = useController({ control, name: "type" });
   return (
     <div className="w-full flex flex-col p-4">
       <FormProvider {...methods}>
@@ -96,7 +98,7 @@ function EditForm() {
               <Dialog>
                 <DialogTrigger asChild>
                   <Button className="bg-transparent border-dashed border border-black shadow-none text-black">
-                    Add icon
+                    Edit icon
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="w-[90%]">
@@ -163,9 +165,9 @@ function EditForm() {
               </SelectContent>
             </Select>
           </div>
-          {data?.type === SubscriptionType.MONTH && <MonthInput />}
-          {data?.type === SubscriptionType.WEEK && <WeekInput />}
-          <Button>Add Subscription</Button>
+          {type.value === SubscriptionType.MONTH && <MonthInput />}
+          {type.value === SubscriptionType.WEEK && <WeekInput />}
+          <Button>Edit Subscription</Button>
         </form>
       </FormProvider>
     </div>
@@ -195,13 +197,16 @@ const MonthInput = () => {
 
 const WeekInput = () => {
   const methods = useFormContext<NewSubscriptionProps>();
-  const { setValue } = methods;
+  const { setValue, control } = methods;
+  const { field: alarm } = useController({ control, name: "alarm" });
+  const { field: payment } = useController({ control, name: "payment" });
 
   return (
     <div className="flex items-center gap-x-2 w-full">
       <div className="flex flex-col gap-y-2 w-full">
         <Label>Payment Day</Label>
         <Select
+          defaultValue={String(payment.value)}
           onValueChange={(day) => {
             setValue("payment", Number(day));
           }}
@@ -223,6 +228,7 @@ const WeekInput = () => {
       <div className="flex flex-col gap-y-2 w-full">
         <Label>Alarm Day</Label>
         <Select
+          defaultValue={String(alarm.value)}
           onValueChange={(day) => {
             setValue("alarm", Number(day));
           }}
