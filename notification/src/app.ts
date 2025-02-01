@@ -27,33 +27,34 @@ webpush.setVapidDetails(
 );
 
 const app = async () => {
-  const now = new Date();
-  const api = "http://127.0.0.1:3002";
+  const api = process.env.API_URL;
   const pocketbase = new PocketBase(api);
+  const expireds = [] as Notification<true>[];
 
   const notis = await pocketbase
     .collection("notifications")
-    .getList<Notification<true>>(1, 10, {
-      sort: "-created",
+    .getFullList<Notification<true>>({
       headers: {
         Authorization: process.env.ADMIN_API_KEY,
       },
     });
 
-  const size = notis.items.length;
+  const size = notis.length;
   for (let i = 0; i < size; i++) {
     try {
-      const item = notis.items[i];
+      const item = notis[i];
       const subs = await pocketbase
         .collection("subscriptions")
-        .getFullList<Subscription>({
+        .getList<Subscription>(1, 100, {
           headers: {
             Authorization: process.env.ADMIN_API_KEY,
           },
+          filter: `user.id = \"${item.expand.id}\"`,
+          sort: "-created",
         });
-      const subLen = subs.length;
+      const subLen = subs.items.length;
       for (let i = 0; i < subLen; i++) {
-        const sub = subs[i];
+        const sub = subs.items[i];
 
         if (sub.type === "MONTH") {
           const now = new Date();
@@ -119,11 +120,15 @@ const app = async () => {
         "statusCode" in error &&
         error.statusCode === 410
       ) {
-        continue;
+        const noti = notis[i];
+        expireds.push(noti);
       } else {
         console.log("Failed to send web push.");
       }
     }
+  }
+  for (const expired of expireds) {
+    await pocketbase.collection("notifications").delete(expired.id);
   }
 };
 

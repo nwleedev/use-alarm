@@ -5,6 +5,7 @@ export declare global {
       VAPID_PRIVATE_KEY: string;
       ADMIN_EMAIL: string;
       ADMIN_API_KEY: string;
+      API_URL: string;
     }
   }
 }
