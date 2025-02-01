@@ -91,20 +91,35 @@ export default function Page() {
                 <p className="text-gray-600 font-normal">{data.amount}</p>
               </div>
               <div className="w-full flex items-center justify-between gap-x-2 py-4">
-                <h3 className="font-medium">Payment date</h3>
+                {data.type === SubscriptionType.MONTH && (
+                  <h3 className="font-medium">Payment date</h3>
+                )}
+                {data.type === SubscriptionType.WEEK && (
+                  <h3 className="font-medium">Payment day</h3>
+                )}
                 <p className="text-gray-600 font-normal">
                   {data.type === SubscriptionType.MONTH
                     ? DateLibs.formatDate(data.payment)
                     : DateLibs.formatDay(data.payment, "EEEE")}
                 </p>
               </div>
-              <div className="w-full flex items-center justify-between gap-x-2 py-4">
-                <h3 className="font-medium">Alarm before days</h3>
-                <p className="text-gray-600 font-normal">
-                  {data.alarm === 1 && `${data.alarm} day`}
-                  {data.alarm !== 1 && `${data.alarm} days`}
-                </p>
-              </div>
+              {data.type === SubscriptionType.MONTH && (
+                <div className="w-full flex items-center justify-between gap-x-2 py-4">
+                  <h3 className="font-medium">Alarm before days</h3>
+                  <p className="text-gray-600 font-normal">
+                    {data.alarm === 1 && `${data.alarm} day`}
+                    {data.alarm !== 1 && `${data.alarm} days`}
+                  </p>
+                </div>
+              )}
+              {data.type === SubscriptionType.WEEK && (
+                <div className="w-full flex items-center justify-between gap-x-2 py-4">
+                  <h3 className="font-medium">Alarm day</h3>
+                  <p className="text-gray-600 font-normal">
+                    {DateLibs.formatDay(data.alarm, "EEEE")}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           <div className="w-full flex items-center gap-x-2 mt-auto">
