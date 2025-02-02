@@ -13,5 +13,5 @@ export interface Subscription<HasUser extends boolean = false>
   alarm: number;
   created: string;
   updated: string;
-  expand: HasUser extends true ? User : undefined;
+  expand: HasUser extends true ? { user: User } : undefined;
 }

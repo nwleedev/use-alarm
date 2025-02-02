@@ -37,6 +37,7 @@ const app = async () => {
       headers: {
         Authorization: process.env.ADMIN_API_KEY,
       },
+      expand: "user",
     });
 
   const size = notis.length;
@@ -49,7 +50,7 @@ const app = async () => {
           headers: {
             Authorization: process.env.ADMIN_API_KEY,
           },
-          filter: `user.id = \"${item.expand.id}\"`,
+          filter: `user.id = \"${item.expand.user.id}\"`,
           sort: "-created",
         });
       const subLen = subs.items.length;
@@ -128,7 +129,11 @@ const app = async () => {
     }
   }
   for (const expired of expireds) {
-    await pocketbase.collection("notifications").delete(expired.id);
+    await pocketbase.collection("notifications").delete(expired.id, {
+      headers: {
+        Authorization: process.env.ADMIN_API_KEY,
+      },
+    });
   }
 };
 
