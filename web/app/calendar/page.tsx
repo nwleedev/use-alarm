@@ -11,7 +11,7 @@ import { format, getDate, getDay, getMonth, isValid } from "date-fns";
 import Link from "next/link";
 import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import { isNotNil } from "ramda";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 function toInfo(date: Date | string) {
   date = new Date(date);
@@ -139,17 +139,22 @@ export default function Page() {
           </div>
         </div>
         <div className="flex w-full flex-col gap-y-2">
-          {data?.map((sub) => {
-            if (sub.type === SubscriptionType.MONTH) {
-              return <SubscriptionItem.Month key={sub.id} sub={sub} />;
-            }
-            if (sub.type === SubscriptionType.WEEK) {
-              return <SubscriptionItem.Week key={sub.id} sub={sub} />;
-            }
-          })}
+          <Suspense>
+            {data &&
+              data.map((sub) => {
+                if (sub.type === SubscriptionType.MONTH) {
+                  return <SubscriptionItem.Month key={sub.id} sub={sub} />;
+                }
+                if (sub.type === SubscriptionType.WEEK) {
+                  return <SubscriptionItem.Week key={sub.id} sub={sub} />;
+                }
+              })}
+          </Suspense>
         </div>
       </div>
       <BottomNavigation />
     </div>
   );
 }
+
+export const runtime = "edge";
