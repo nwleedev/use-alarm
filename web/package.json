@@ -16,6 +16,7 @@
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "@hookform/resolvers": "^3.10.0",
+    "@nwleedev/use-calendar": "^0.2.0",
     "@radix-ui/react-dialog": "^1.1.5",
     "@radix-ui/react-label": "^2.1.1",
     "@radix-ui/react-select": "^2.1.5",
