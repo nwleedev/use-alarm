@@ -1,5 +1,6 @@
 "use client";
 
+import BottomNavigation from "@/components/BottomNavigation";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -161,6 +162,7 @@ export default function Page() {
           </div>
         </div>
       )}
+      <BottomNavigation />
     </div>
   );
 }
