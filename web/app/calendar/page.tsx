@@ -1,16 +1,24 @@
 "use client";
 
 import BottomNavigation from "@/components/BottomNavigation";
-import SubscriptionItem from "@/components/Subscription/Item";
 import { SubscriptionType } from "@/lib/subscription/enum";
 import { Subscription } from "@/models/subscription";
 import { usePocketClient } from "@/provider/PocketBase";
 import useCalendar from "@nwleedev/use-calendar";
 import { useQuery } from "@tanstack/react-query";
-import { format, getDate, getDay, getMonth, isValid } from "date-fns";
+import {
+  addMonths,
+  format,
+  getDate,
+  getDay,
+  getMonth,
+  isValid,
+  subMonths,
+} from "date-fns";
+import { CircleChevronLeft, CircleChevronRight } from "lucide-react";
 import Link from "next/link";
 import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
-import { isNotNil } from "ramda";
+import { isNil, isNotNil } from "ramda";
 import { Suspense, useState } from "react";
 
 function toInfo(date: Date | string) {
@@ -26,6 +34,7 @@ function getClassnames(day: Date, date?: Date) {
   const isSunday = getDay(day) === 0;
   const now =
     isNotNil(date) && format(day, "yyyy-MM-dd") === format(date, "yyyy-MM-dd");
+
   if (now) {
     return {
       div: "w-8 h-8 flex flex-shrink-0 justify-center items-center bg-black rounded-full",
@@ -58,7 +67,10 @@ function getDayHref(params: ReadonlyURLSearchParams, date: Date) {
   return `/calendar?${searchParams}`;
 }
 
-function validateDate(date: Date | string, fallback: Date) {
+function validateDate(date: Date | string | undefined | null, fallback: Date) {
+  if (isNil(date)) {
+    return fallback;
+  }
   try {
     date = new Date(date);
     if (isValid(date)) {
@@ -72,15 +84,20 @@ function validateDate(date: Date | string, fallback: Date) {
 
 export default function Page() {
   const [now] = useState(new Date());
-  const { days, onMonthChange } = useCalendar({ defaultValue: now });
-
   const params = useSearchParams();
-  const date = validateDate(params.get("date") ?? now, now);
+  const selectedDate = validateDate(params.get("date"), now);
 
-  const info = toInfo(date);
+  const {
+    date: calendarDate,
+    days,
+    onDateChange,
+  } = useCalendar({ defaultValue: selectedDate });
+
+  const info = toInfo(calendarDate);
+  const subInfo = toInfo(selectedDate);
   const pb = usePocketClient();
   const { data } = useQuery({
-    queryKey: ["SUBSCRIPTION_BY_DATE", date] as const,
+    queryKey: ["SUBSCRIPTION_BY_DATE", selectedDate] as const,
     queryFn: ({ queryKey }) => {
       const [, date] = queryKey;
       const payment = {
@@ -101,55 +118,91 @@ export default function Page() {
         </h2>
         <div className="w-full flex items-center justify-end gap-x-4"></div>
       </div>
-      <div className="flex flex-col w-full flex-1 p-4 gap-y-4">
-        <div className="flex flex-col gap-y-0.5">
-          <h2 className="font-semibold text-xl">
-            {info.month} {info.day}
-          </h2>
-          <div className="h-5">
+      <div className="flex flex-col w-full flex-1 p-4 gap-y-6">
+        <div className="flex w-full flex-col gap-y-2">
+          <div className="flex justify-between w-full">
+            <div className="flex flex-col">
+              <h2 className="font-semibold">{info.month}</h2>
+            </div>
+            <div className="flex gap-x-2 items-end">
+              <button onClick={() => onDateChange(subMonths(calendarDate, 1))}>
+                <CircleChevronLeft className="stroke-[1.5]" />
+              </button>
+              <button onClick={() => onDateChange(addMonths(calendarDate, 1))}>
+                <CircleChevronRight className="stroke-[1.5]" />
+              </button>
+            </div>
+          </div>
+          <div className="w-full flex justify-center">
+            <div className="grid grid-cols-7 py-2 rounded bg-white w-full gap-y-1.5 gap-x-1">
+              {days.map((day) => {
+                const current = getMonth(day) === getMonth(calendarDate);
+                const classNames = getClassnames(day, selectedDate);
+                const href = getDayHref(params, day);
+
+                return (
+                  <div
+                    key={day.getTime()}
+                    className="flex justify-center items-center"
+                  >
+                    {current && (
+                      <Link href={href} className={classNames.div}>
+                        <span className={classNames.span}>
+                          {format(day, "dd")}
+                        </span>
+                      </Link>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col w-full flex-1 gap-y-2">
+          <div className="flex w-full flex-col gap-y-1">
+            <h2>
+              <span className="text-3xl font-semibold">{subInfo.day}</span>{" "}
+              <span className="font-medium">{subInfo.month}</span>
+            </h2>
             {data && (
-              <span className="text-slate-500 font-normal text-sm">
+              <p className="text-xs font-normal text-slate-500">
                 {data.length} subscriptions
-              </span>
+              </p>
             )}
           </div>
-        </div>
-        <div className="w-full flex justify-center">
-          <div className="grid grid-cols-7 py-2 rounded bg-white w-full gap-y-2">
-            {days.map((day) => {
-              const current = getMonth(day) === getMonth(date);
-              const classNames = getClassnames(day, date);
-              const href = getDayHref(params, day);
-
-              return (
-                <div
-                  key={day.getTime()}
-                  className="flex justify-center items-center"
-                >
-                  {current && (
-                    <Link href={href} className={classNames.div}>
-                      <span className={classNames.span}>
-                        {format(day, "dd")}
-                      </span>
-                    </Link>
-                  )}
-                </div>
-              );
-            })}
+          <div className="flex w-full flex-col p-2 px-4 divide-y flex-1 rounded bg-white">
+            <Suspense>
+              {data &&
+                data.map((sub) => {
+                  const { id } = sub;
+                  return (
+                    <div
+                      key={id}
+                      className="w-full flex py-3 items-center justify-between"
+                    >
+                      <div className="flex flex-col">
+                        <div className="flex gap-x-2 items-center">
+                          {sub.icon && (
+                            <span className="text-3xl">{sub.icon}</span>
+                          )}
+                          <div className="flex flex-col">
+                            <h3 className="font-semibold">{sub.name}</h3>
+                            <p className="text-xs font-normal">
+                              Alarm on{" "}
+                              {sub.type === SubscriptionType.MONTH
+                                ? format(sub.alarm, "dd")
+                                : format(sub.alarm, "EEE")}
+                            </p>
+                          </div>
+                        </div>
+                        <div></div>
+                      </div>
+                      <span className="font-medium">{sub.amount}</span>
+                    </div>
+                  );
+                })}
+            </Suspense>
           </div>
-        </div>
-        <div className="flex w-full flex-col gap-y-2">
-          <Suspense>
-            {data &&
-              data.map((sub) => {
-                if (sub.type === SubscriptionType.MONTH) {
-                  return <SubscriptionItem.Month key={sub.id} sub={sub} />;
-                }
-                if (sub.type === SubscriptionType.WEEK) {
-                  return <SubscriptionItem.Week key={sub.id} sub={sub} />;
-                }
-              })}
-          </Suspense>
         </div>
       </div>
       <BottomNavigation />
