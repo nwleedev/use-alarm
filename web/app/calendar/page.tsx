@@ -98,12 +98,16 @@ export default function Page() {
   const subInfo = toInfo(selectedDate);
   const pb = usePocketClient();
   const { data } = useQuery({
-    queryKey: ["SUBSCRIPTION_BY_DATE", selectedDate] as const,
+    queryKey: [
+      "SUBSCRIPTION_BY_DATE",
+      getDate(selectedDate),
+      getDay(selectedDate),
+    ] as const,
     queryFn: ({ queryKey }) => {
-      const [, date] = queryKey;
+      const [, dayOfMonth, dayOfWeek] = queryKey;
       const payment = {
-        month: getDate(date),
-        week: getDay(date),
+        month: dayOfMonth,
+        week: dayOfWeek,
       };
       return pb.collection("subscriptions").getFullList<Subscription<true>>({
         filter: `(type = \"${SubscriptionType.MONTH}\" && payment = ${payment.month}) || (type = \"${SubscriptionType.WEEK}\" && payment = ${payment.week})`,
