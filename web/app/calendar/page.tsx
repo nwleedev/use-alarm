@@ -1,6 +1,7 @@
 "use client";
 
 import BottomNavigation from "@/components/BottomNavigation";
+import { DateLibs } from "@/lib/date";
 import { SubscriptionType } from "@/lib/subscription/enum";
 import { Subscription } from "@/models/subscription";
 import { usePocketClient } from "@/provider/PocketBase";
@@ -175,6 +176,16 @@ export default function Page() {
               {data &&
                 data.map((sub) => {
                   const { id } = sub;
+                  function getText() {
+                    if (sub.type === SubscriptionType.MONTH) {
+                      return `Alarm before ${DateLibs.formatBeforeDays(
+                        sub.alarm
+                      )}`;
+                    } else {
+                      return `Alarm on ${DateLibs.formatDay(sub.alarm)}`;
+                    }
+                  }
+                  const text = getText();
                   return (
                     <div
                       key={id}
@@ -187,12 +198,7 @@ export default function Page() {
                           )}
                           <div className="flex flex-col">
                             <h3 className="font-semibold">{sub.name}</h3>
-                            <p className="text-xs font-normal">
-                              Alarm on{" "}
-                              {sub.type === SubscriptionType.MONTH
-                                ? format(sub.alarm, "dd")
-                                : format(sub.alarm, "EEE")}
-                            </p>
+                            <p className="text-xs font-normal">{text}</p>
                           </div>
                         </div>
                         <div></div>

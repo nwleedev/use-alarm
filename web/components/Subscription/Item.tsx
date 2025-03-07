@@ -59,13 +59,13 @@ const WeekItem = (props: { sub: Subscription<true> }) => {
           </div>
         </div>
         <div className="w-full flex items-center text-sm text-gray-600 divide-x-2 gap-x-2">
-          <span className="">Payment on {DateLibs.formatDay(sub.payment)}</span>
+          <span className="">Alarm on {DateLibs.formatDay(sub.alarm)}</span>
           <span className="px-2">₩{sub.amount.toLocaleString()}</span>
         </div>
       </div>
       <div className="flex flex-col items-end">
         <span className="font-semibold text-xl">
-          {DateLibs.formatDay(sub.alarm)}
+          {DateLibs.formatDay(sub.payment)}
         </span>
       </div>
     </Link>
