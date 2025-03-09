@@ -81,7 +81,7 @@ app.post("/", async function (req, rep) {
   rep.send(expireds);
 });
 
-app.listen({ port: 3003 }, (err) => {
+app.listen({ port: 3010 }, (err) => {
   if (err) {
     console.error(err);
     process.exit(1);

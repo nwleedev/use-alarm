@@ -103,7 +103,7 @@ cronAdd("notification", "* */9 * * *", function () {
       });
 
       const notiResponse = $http.send({
-        url: "http://127.0.0.1:3003",
+        url: "http://127.0.0.1:3010",
         method: "POST",
         body: JSON.stringify({ notifications, subscriptions }),
         timeout: 120,
