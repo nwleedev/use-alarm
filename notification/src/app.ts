@@ -1,17 +1,8 @@
-import {
-  format,
-  getDate,
-  getDay,
-  getMonth,
-  lastDayOfMonth,
-  setDate,
-  setDay,
-  subDays,
-} from "date-fns";
+import { format, setDate } from "date-fns";
 import dotenv from "dotenv";
+import Fastify from "fastify";
 import { Notification } from "models/notification";
 import { Subscription } from "models/subscription";
-import PocketBase from "pocketbase";
 import webpush from "web-push";
 
 dotenv.config();
@@ -26,115 +17,73 @@ webpush.setVapidDetails(
   VAPID_PRIVATE_KEY
 );
 
-const app = async () => {
-  const api = process.env.API_URL;
-  const pocketbase = new PocketBase(api);
-  const expireds = [] as Notification<true>[];
+const app = Fastify({
+  logger: true,
+});
 
-  const notis = await pocketbase
-    .collection("notifications")
-    .getFullList<Notification<true>>({
-      headers: {
-        Authorization: process.env.ADMIN_API_KEY,
-      },
-      expand: "user",
-    });
+app.post("/", async function (req, rep) {
+  const body = req.body;
+  const { subscriptions, notifications } = body as {
+    subscriptions: Subscription[];
+    notifications: Notification[];
+  };
 
-  const size = notis.length;
-  for (let i = 0; i < size; i++) {
-    try {
-      const item = notis[i];
-      const subs = await pocketbase
-        .collection("subscriptions")
-        .getList<Subscription>(1, 100, {
-          headers: {
-            Authorization: process.env.ADMIN_API_KEY,
-          },
-          filter: `user.id = \"${item.expand.user.id}\"`,
-          sort: "-created",
-        });
-      const subLen = subs.items.length;
-      for (let i = 0; i < subLen; i++) {
-        const sub = subs.items[i];
+  const response = await Promise.all(
+    notifications.map(async (noti) => {
+      const answers = [] as (Notification | null)[];
+      for (let i = 0; i < subscriptions.length; i++) {
+        const sub = subscriptions[i];
+        const title = sub.icon ? `${sub.icon} ${sub.name}` : sub.name;
+        const payment = setDate(new Date(), sub.payment);
+        const formattedDay = format(payment, "EEEE");
 
-        if (sub.type === "MONTH") {
-          const now = new Date();
-          let payment = setDate(new Date(), sub.payment);
+        const body =
+          sub.type === "MONTH"
+            ? `${sub.amount} will be charged after ${sub.alarm} ${
+                sub.alarm === 1 ? "day" : "days"
+              }.`
+            : `${sub.amount} will be charged ${
+                sub.alarm <= sub.payment ? "this" : "next"
+              } ${formattedDay}`;
 
-          if (getMonth(payment) !== getMonth(now)) {
-            payment = lastDayOfMonth(now);
-          }
-
-          const alarm = subDays(payment, sub.alarm);
-          const body = `${sub.name} Payment will be charged after ${
-            sub.alarm
-          } ${sub.alarm === 1 ? `day` : `days`}.`;
-
-          if (getDate(now) === getDate(alarm)) {
-            await webpush.sendNotification(
-              { endpoint: item.endpoint, keys: item.keys },
-              JSON.stringify({
-                title: "Payment Alarm - Use Alarm",
-                body,
-                icon: sub.icon,
-              })
-            );
-          }
-        } else if (sub.type === "WEEK") {
-          const day = getDay(new Date());
-          if (day === sub.alarm) {
-            if (sub.alarm <= sub.payment) {
-              const payment = setDay(new Date(), sub.payment);
-              const body = `${sub.name} Payment will be charged this ${format(
-                payment,
-                "EEEE"
-              )}`;
-              await webpush.sendNotification(
-                { endpoint: item.endpoint, keys: item.keys },
-                JSON.stringify({
-                  title: "Payment Alarm - Use Alarm",
-                  body,
-                  icon: sub.icon,
-                })
-              );
-            } else {
-              const payment = setDay(new Date(), sub.payment);
-              const body = `${sub.name} Payment will be charged next ${format(
-                payment,
-                "EEEE"
-              )}`;
-              await webpush.sendNotification(
-                { endpoint: item.endpoint, keys: item.keys },
-                JSON.stringify({
-                  title: "Payment Alarm - Use Alarm",
-                  body,
-                  icon: sub.icon,
-                })
-              );
-            }
+        try {
+          await webpush.sendNotification(
+            { endpoint: noti.endpoint, keys: noti.keys },
+            JSON.stringify({
+              title,
+              body,
+            })
+          );
+          answers.push(null);
+        } catch (error) {
+          if (
+            error instanceof Error &&
+            "statusCode" in error &&
+            error.statusCode === 410
+          ) {
+            answers.push(noti);
+          } else {
+            answers.push(null);
           }
         }
       }
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        "statusCode" in error &&
-        error.statusCode === 410
-      ) {
-        const noti = notis[i];
-        expireds.push(noti);
-      } else {
-        console.log("Failed to send web push.");
+      return answers;
+    })
+  );
+  const expireds = response.reduce((array, items) => {
+    items.forEach((item) => {
+      if (item !== null) {
+        array.push(item);
       }
-    }
-  }
-  for (const expired of expireds) {
-    await pocketbase.collection("notifications").delete(expired.id, {
-      headers: {
-        Authorization: process.env.ADMIN_API_KEY,
-      },
     });
-  }
-};
+    return array;
+  }, [] as Notification[]);
+  rep.send(expireds);
+});
 
-app();
+app.listen({ port: 3003 }, (err) => {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
+});
