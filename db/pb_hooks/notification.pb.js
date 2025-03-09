@@ -35,7 +35,7 @@ cronAdd("notification", "* */9 * * *", function () {
       "notifications",
       "",
       "-created",
-      10,
+      200,
       0
     );
 
