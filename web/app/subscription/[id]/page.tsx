@@ -66,102 +66,108 @@ export default function Page() {
           </h2>
         </div>
       </div>
-      {data && (
-        <div className="w-full flex flex-col p-4 px-6 gap-y-4 flex-1">
-          {data.icon && <p className="text-6xl">{data.icon}</p>}
-          <div className="w-full flex items-center justify-between gap-x-2">
-            <div className="flex flex-col w-full gap-y-1.5">
-              <h1 className="text-3xl font-semibold">{data.name}</h1>
-              <p className="font-normal text-gray-500">{data.description}</p>
-            </div>
-            <div className="flex items-center">
-              <p className="text-2xl font-semibold">{data.amount}</p>
-            </div>
-          </div>
-          <div className="flex flex-col w-full gap-y-2">
-            <h2 className="text-xl font-semibold">Attributes</h2>
-            <div className="flex flex-col w-full divide-y">
-              <div className="w-full flex items-center justify-between gap-x-2 py-4">
-                <h3 className="font-medium">Type</h3>
-                <p className="text-gray-600 font-normal">
-                  {data.type === SubscriptionType.MONTH ? "Monthly" : "Weekly"}
-                </p>
+      <div className="w-full flex flex-col p-4 px-6 gap-y-4 flex-1">
+        {data && (
+          <>
+            {data.icon && <p className="text-6xl">{data.icon}</p>}
+            <div className="w-full flex items-center justify-between gap-x-2">
+              <div className="flex flex-col w-full gap-y-1.5">
+                <h1 className="text-3xl font-semibold">{data.name}</h1>
+                <p className="font-normal text-gray-500">{data.description}</p>
               </div>
-              <div className="w-full flex items-center justify-between gap-x-2 py-4">
-                <h3 className="font-medium">Price</h3>
-                <p className="text-gray-600 font-normal">{data.amount}</p>
+              <div className="flex items-center">
+                <p className="text-2xl font-semibold">{data.amount}</p>
               </div>
-              <div className="w-full flex items-center justify-between gap-x-2 py-4">
+            </div>
+            <div className="flex flex-col w-full gap-y-2">
+              <h2 className="text-xl font-semibold">Attributes</h2>
+              <div className="flex flex-col w-full divide-y">
+                <div className="w-full flex items-center justify-between gap-x-2 py-4">
+                  <h3 className="font-medium">Type</h3>
+                  <p className="text-gray-600 font-normal">
+                    {data.type === SubscriptionType.MONTH
+                      ? "Monthly"
+                      : "Weekly"}
+                  </p>
+                </div>
+                <div className="w-full flex items-center justify-between gap-x-2 py-4">
+                  <h3 className="font-medium">Price</h3>
+                  <p className="text-gray-600 font-normal">{data.amount}</p>
+                </div>
+                <div className="w-full flex items-center justify-between gap-x-2 py-4">
+                  {data.type === SubscriptionType.MONTH && (
+                    <h3 className="font-medium">Payment date</h3>
+                  )}
+                  {data.type === SubscriptionType.WEEK && (
+                    <h3 className="font-medium">Payment day</h3>
+                  )}
+                  <p className="text-gray-600 font-normal">
+                    {data.type === SubscriptionType.MONTH
+                      ? DateLibs.formatDate(data.payment)
+                      : DateLibs.formatDay(data.payment, "EEEE")}
+                  </p>
+                </div>
                 {data.type === SubscriptionType.MONTH && (
-                  <h3 className="font-medium">Payment date</h3>
+                  <div className="w-full flex items-center justify-between gap-x-2 py-4">
+                    <h3 className="font-medium">Alarm before days</h3>
+                    <p className="text-gray-600 font-normal">
+                      {data.alarm === 1 && `${data.alarm} day`}
+                      {data.alarm !== 1 && `${data.alarm} days`}
+                    </p>
+                  </div>
                 )}
                 {data.type === SubscriptionType.WEEK && (
-                  <h3 className="font-medium">Payment day</h3>
+                  <div className="w-full flex items-center justify-between gap-x-2 py-4">
+                    <h3 className="font-medium">Alarm day</h3>
+                    <p className="text-gray-600 font-normal">
+                      {DateLibs.formatDay(data.alarm, "EEEE")}
+                    </p>
+                  </div>
                 )}
-                <p className="text-gray-600 font-normal">
-                  {data.type === SubscriptionType.MONTH
-                    ? DateLibs.formatDate(data.payment)
-                    : DateLibs.formatDay(data.payment, "EEEE")}
-                </p>
               </div>
-              {data.type === SubscriptionType.MONTH && (
-                <div className="w-full flex items-center justify-between gap-x-2 py-4">
-                  <h3 className="font-medium">Alarm before days</h3>
-                  <p className="text-gray-600 font-normal">
-                    {data.alarm === 1 && `${data.alarm} day`}
-                    {data.alarm !== 1 && `${data.alarm} days`}
-                  </p>
-                </div>
-              )}
-              {data.type === SubscriptionType.WEEK && (
-                <div className="w-full flex items-center justify-between gap-x-2 py-4">
-                  <h3 className="font-medium">Alarm day</h3>
-                  <p className="text-gray-600 font-normal">
-                    {DateLibs.formatDay(data.alarm, "EEEE")}
-                  </p>
-                </div>
-              )}
             </div>
-          </div>
-          <div className="w-full flex items-center gap-x-2 mt-auto">
-            <Link href={`/subscription/${data.id}/edit`} className="w-full">
-              <Button className="w-full bg-white text-red-500">Edit</Button>
-            </Link>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="w-full text-white bg-red-500">Delete</Button>
-              </DialogTrigger>
-              <DialogContent className="w-11/12 sm:w-full">
-                <DialogTitle>Delete {data.name}</DialogTitle>
-                <DialogDescription>
-                  Do you want to delete this subscription?
-                </DialogDescription>
-                <DialogFooter className="flex gap-x-2 flex-row">
-                  <DialogClose asChild>
-                    <Button className="w-full bg-white text-red-500">
-                      Cancel
-                    </Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Button
-                      className="w-full text-white bg-red-500"
-                      disabled={isPending}
-                      onClick={() => {
-                        mutateAsync({
-                          id: data.id,
-                          type: data.type as SubscriptionType,
-                        });
-                      }}
-                    >
-                      Confirm
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-      )}
+            <div className="w-full flex items-center gap-x-2 mt-auto">
+              <Link href={`/subscription/${data.id}/edit`} className="w-full">
+                <Button className="w-full bg-white text-red-500">Edit</Button>
+              </Link>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="w-full text-white bg-red-500">
+                    Delete
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="w-11/12 sm:w-full">
+                  <DialogTitle>Delete {data.name}</DialogTitle>
+                  <DialogDescription>
+                    Do you want to delete this subscription?
+                  </DialogDescription>
+                  <DialogFooter className="flex gap-x-2 flex-row">
+                    <DialogClose asChild>
+                      <Button className="w-full bg-white text-red-500">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button
+                        className="w-full text-white bg-red-500"
+                        disabled={isPending}
+                        onClick={() => {
+                          mutateAsync({
+                            id: data.id,
+                            type: data.type as SubscriptionType,
+                          });
+                        }}
+                      >
+                        Confirm
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </>
+        )}
+      </div>
       <BottomNavigation />
     </div>
   );
