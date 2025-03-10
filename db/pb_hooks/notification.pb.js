@@ -29,7 +29,7 @@
  *
  */
 
-cronAdd("notification", "0 */9 * * *", function () {
+cronAdd("notification", "0 9 * * *", function () {
   try {
     const records = $app.findRecordsByFilter(
       "notifications",
