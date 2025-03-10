@@ -1,4 +1,4 @@
-import { format, setDate } from "date-fns";
+import { format, setDay } from "date-fns";
 import dotenv from "dotenv";
 import Fastify from "fastify";
 import { Notification } from "models/notification";
@@ -18,7 +18,7 @@ webpush.setVapidDetails(
 );
 
 const app = Fastify({
-  logger: true,
+  logger: false,
 });
 
 app.post("/", async function (req, rep) {
@@ -34,7 +34,7 @@ app.post("/", async function (req, rep) {
       for (let i = 0; i < subscriptions.length; i++) {
         const sub = subscriptions[i];
         const title = sub.icon ? `${sub.icon} ${sub.name}` : sub.name;
-        const payment = setDate(new Date(), sub.payment);
+        const payment = setDay(new Date(), sub.payment);
         const formattedDay = format(payment, "EEEE");
 
         const body =
