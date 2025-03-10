@@ -2,18 +2,32 @@
 
 import BottomNavigation from "@/components/BottomNavigation";
 import AccountNotification from "@/components/Notification";
+import { Button } from "@/components/ui/button";
 import { User } from "@/models/user";
 import { usePocketClient } from "@/provider/PocketBase";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const client = usePocketClient();
+  const router = useRouter();
+
   const { data: user } = useQuery({
     queryKey: ["USER"],
     queryFn: () => {
       return client.authStore.record as unknown as User;
     },
   });
+  const onSignOut = async () => {
+    const expires = new Date();
+    const exportedCookie = client.authStore.exportToCookie({
+      httpOnly: false,
+      expires,
+    });
+    document.cookie = exportedCookie;
+    await client.collection("users").authRefresh();
+    router.push("/signin");
+  };
 
   return (
     <div className="flex flex-col w-full flex-1">
@@ -31,6 +45,14 @@ export default function Page() {
             <div className="w-full flex flex-col gap-y-2">
               <h2 className="text-xl font-semibold">Settings</h2>
               <AccountNotification />
+            </div>
+            <div>
+              <Button
+                className="flex bg-red-600 hover:bg-red-400 font-semibold border-b text-white"
+                onClick={onSignOut}
+              >
+                Sign Out
+              </Button>
             </div>
           </>
         )}
