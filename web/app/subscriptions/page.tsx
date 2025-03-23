@@ -1,42 +1,67 @@
 "use client";
 
+import BottomNavigation from "@/components/BottomNavigation";
+import { FilterSheet } from "@/components/Subscription/FilterSheet";
 import SubscriptionItem from "@/components/Subscription/Item";
-import { cn } from "@/lib/css";
 import { SubscriptionType } from "@/lib/subscription/enum";
 import { Subscription } from "@/models/subscription";
 import { usePocketClient } from "@/provider/PocketBase";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useIntersectionObserver } from "@uidotdev/usehooks";
-import { ChevronLeftIcon } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronLeft, Search } from "lucide-react";
 import Link from "next/link";
-import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
-import { Suspense, useEffect } from "react";
-
-const getSubscriptionHref = (
-  readonlyParams: ReadonlyURLSearchParams,
-  type: SubscriptionType
-) => {
-  const params = new URLSearchParams(readonlyParams);
-  params.set("type", type);
-
-  return `/subscriptions?${params}`;
-};
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 export default function Page() {
   const client = usePocketClient();
-  const params = useSearchParams();
-  const type = params.get("type") as SubscriptionType | null;
   const [ref, entry] = useIntersectionObserver({ threshold: 0.5 });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const title = searchParams.get("title");
+  const description = searchParams.get("description");
+  const type = searchParams.get("type");
+  const minAmount = searchParams.get("minAmount");
+  const maxAmount = searchParams.get("maxAmount");
+  const filters = {
+    title,
+    description,
+    type,
+    minAmount,
+    maxAmount,
+  };
+
   const { data, fetchNextPage, isFetchingNextPage, hasNextPage } =
     useInfiniteQuery({
-      queryKey: ["SUBSCRIPTIONS", type] as const,
+      queryKey: ["SUBSCRIPTIONS", filters] as const,
       queryFn: async ({ queryKey, pageParam }) => {
-        const [, type] = queryKey;
+        const [, filters] = queryKey;
+        const filter = [];
+
+        if (filters.title) {
+          filter.push(`name ~ "${filters.title}"`);
+        }
+        if (filters.description) {
+          filter.push(`description ~ "${filters.description}"`);
+        }
+        if (filters.type && filters.type !== SubscriptionType.DEFAULT) {
+          filter.push(`type = "${filters.type}"`);
+        }
+        if (filters.minAmount) {
+          filter.push(`amount >= ${filters.minAmount}`);
+        }
+        if (filters.maxAmount) {
+          filter.push(`amount <= ${filters.maxAmount}`);
+        }
+
+        const filterString = filter.length > 0 ? filter.join(" && ") : "";
+
         const subs = await client
           .collection("subscriptions")
           .getList<Subscription<true>>(pageParam, 10, {
             expand: "user",
-            filter: `type = \"${type ?? SubscriptionType.MONTH}\"`,
+            filter: filterString,
             requestKey: null,
           });
         return subs;
@@ -62,55 +87,69 @@ export default function Page() {
   const subs = data?.pages.flatMap((page) => page.items);
 
   return (
-    <div className="flex flex-col w-full gap-y-4 flex-1">
-      <div className="flex flex-col w-full">
-        <div className="w-full flex items-center h-[60px] justify-between gap-x-4 px-4">
-          <Link href={"/"}>
-            <ChevronLeftIcon />
+    <div className="flex flex-col w-full min-h-screen bg-[#F5F5F5]">
+      {/* Header */}
+      <div className="w-full flex items-center h-[70px] justify-between px-6 bg-white shadow-sm sticky top-0 bottom-auto z-10">
+        <div className="flex items-center gap-x-4">
+          <Link
+            href="/"
+            className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-[#787486]" />
           </Link>
-          <h2 className="whitespace-nowrap flex-shrink-0 font-semibold">
-            Subscriptions
-          </h2>
-          <div className="w-full flex items-center justify-end gap-x-4"></div>
+          <h2 className="text-xl font-bold text-[#0D062D]">Subscriptions</h2>
         </div>
-        <div className="w-full flex items-center">
-          <Link
-            href={getSubscriptionHref(params, SubscriptionType.MONTH)}
-            className={cn(
-              "w-full p-2 text-center font-medium",
-              (type === SubscriptionType.MONTH || type === null) &&
-                "border-b-2 border-slate-500"
-            )}
+        <div>
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            Month
-          </Link>
-          <Link
-            href={getSubscriptionHref(params, SubscriptionType.WEEK)}
-            className={cn(
-              "w-full p-2 text-center font-medium",
-              type === SubscriptionType.WEEK && "border-b-2 border-slate-500"
-            )}
-          >
-            Week
-          </Link>
+            <Search className="w-5 h-5 text-[#787486]" />
+          </button>
         </div>
       </div>
-      <div className="flex flex-col w-full flex-1 p-4 justify-between">
-        <div className="flex flex-col w-full divide-y">
-          <Suspense>
-            {(type === SubscriptionType.MONTH || type === null) &&
-              subs?.map((sub) => {
-                return <SubscriptionItem.Month sub={sub} key={sub.id} />;
-              })}
-          </Suspense>
-          <Suspense>
-            {type === SubscriptionType.WEEK &&
-              subs?.map((sub) => {
-                return <SubscriptionItem.Week sub={sub} key={sub.id} />;
-              })}
-          </Suspense>
+
+      {/* Main Content */}
+      <div className="flex flex-col flex-1 p-6">
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="flex flex-col divide-y divide-gray-100">
+            <Suspense>
+              {subs?.map((sub) =>
+                sub.type === SubscriptionType.MONTH ? (
+                  <motion.div
+                    key={sub.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <SubscriptionItem.Month sub={sub} />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={sub.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <SubscriptionItem.Week sub={sub} />
+                  </motion.div>
+                )
+              )}
+            </Suspense>
+          </div>
+          <div className="h-px w-full mt-4" ref={ref} />
         </div>
-        <div className="h-px w-full" ref={ref} />
+      </div>
+
+      {/* Filter Sheet */}
+      <FilterSheet
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+      />
+
+      {/* Bottom Navigation */}
+      <div className="bg-white sticky bottom-0 top-auto">
+        <BottomNavigation />
       </div>
     </div>
   );

@@ -30,6 +30,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { getDate, subDays } from "date-fns";
+import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -67,109 +68,146 @@ export default function Page() {
   const {
     field: { value: type = SubscriptionType.MONTH },
   } = useController({ control, name: "type" });
+
   return (
-    <div className="flex flex-col flex-1">
-      <div className="h-[60px] w-full flex items-center p-4 gap-x-2 shadow-sm">
-        <Link href="/">
-          <ChevronLeft />
-        </Link>
-        <h2 className="font-semibold whitespace-nowrap flex-shrink-0">
-          New Subscription
-        </h2>
+    <div className="flex flex-col w-full min-h-screen bg-[#F5F5F5]">
+      {/* Header */}
+      <div className="w-full flex items-center h-[70px] justify-between px-6 bg-white shadow-sm">
+        <div className="flex items-center gap-x-4">
+          <Link
+            href="/"
+            className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-[#787486]" />
+          </Link>
+          <h2 className="text-xl font-bold text-[#0D062D]">New Subscription</h2>
+        </div>
       </div>
-      <FormProvider {...methods}>
-        <div className="w-full flex flex-col flex-1 p-4">
-          <form onSubmit={onSubmit} className="flex flex-col gap-y-4 flex-1">
-            <div></div>
-            <div className="flex flex-col gap-y-2">
-              <Label>Name</Label>
-              <Input type="text" {...register("name")} />
-            </div>
-            <div className="flex flex-col gap-y-2">
-              <Label>Icon</Label>
-              <div className="w-full flex gap-x-4 items-center">
-                {icon && (
-                  <div className="p-2">
-                    <p>{icon}</p>
-                  </div>
-                )}
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button className="bg-transparent border-dashed border border-black shadow-none text-black hover:text-white">
-                      Add icon
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="w-[90%]">
-                    <DialogHeader>
-                      <DialogTitle>Select Emoji</DialogTitle>
-                      <DialogDescription>
-                        You can choose a emoji associated with this
-                        subscription.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="w-full flex justify-between">
-                      <div className="w-full h-[240px] overflow-y-scroll grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-y-3">
-                        {EmojiLibs.data.map((emoji) => {
-                          return (
+
+      {/* Main Content */}
+      <div className="flex flex-col flex-1 p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white rounded-2xl shadow-sm p-6"
+        >
+          <FormProvider {...methods}>
+            <form onSubmit={onSubmit} className="flex flex-col gap-y-6">
+              <div className="flex flex-col gap-y-2">
+                <Label className="text-[#0D062D] font-medium">Name</Label>
+                <Input
+                  type="text"
+                  {...register("name")}
+                  className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+                  placeholder="Enter subscription name"
+                />
+              </div>
+
+              <div className="flex flex-col gap-y-2">
+                <Label className="text-[#0D062D] font-medium">Icon</Label>
+                <div className="flex gap-x-4 items-center">
+                  {icon && <div className="p-2 text-2xl">{icon}</div>}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="bg-transparent border border-[#5030E5] text-[#5030E5] hover:bg-[#5030E5] hover:text-white transition-colors">
+                        Select Icon
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="w-[90%] bg-white p-6 rounded-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="text-[#0D062D] text-xl font-bold">
+                          Select Emoji
+                        </DialogTitle>
+                        <DialogDescription className="text-[#787486]">
+                          Choose an emoji for your subscription
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="w-full flex justify-between">
+                        <div className="w-full h-[240px] overflow-y-scroll grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-4">
+                          {EmojiLibs.data.map((emoji) => (
                             <DialogClose
                               key={emoji}
-                              onClick={() => {
-                                setValue("icon", emoji);
-                              }}
-                              className="flex justify-center items-center text-xl"
+                              onClick={() => setValue("icon", emoji)}
+                              className="flex justify-center items-center text-2xl hover:bg-gray-50 p-2 rounded-lg transition-colors cursor-pointer"
                             >
                               {emoji}
                             </DialogClose>
-                          );
-                        })}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <DialogFooter className="flex gap-x-2 flex-row">
-                      <DialogClose asChild className="w-full">
-                        <Button>Cancel</Button>
-                      </DialogClose>
-                      <DialogClose asChild className="w-full">
-                        <Button>Enter</Button>
-                      </DialogClose>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                      <DialogFooter className="flex gap-x-3">
+                        <DialogClose asChild>
+                          <Button className="flex-1 bg-gray-100 hover:bg-gray-200 text-[#0D062D]">
+                            Cancel
+                          </Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button className="flex-1 bg-[#5030E5] hover:bg-[#4024B8]">
+                            Select
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col gap-y-2">
-              <Label>Description</Label>
-              <Input type="text" {...register("description")} />
-            </div>
-            <div className="flex flex-col gap-y-2">
-              <Label>Amount</Label>
-              <Input
-                type="number"
-                {...register("amount", { valueAsNumber: true })}
-              />
-            </div>
-            <div className="flex flex-col gap-y-2 w-full">
-              <Label>Type</Label>
-              <Select
-                onValueChange={(value) => {
-                  setValue("type", value);
-                }}
-                defaultValue={SubscriptionType.MONTH}
+
+              <div className="flex flex-col gap-y-2">
+                <Label className="text-[#0D062D] font-medium">
+                  Description
+                </Label>
+                <Input
+                  type="text"
+                  {...register("description")}
+                  className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+                  placeholder="Enter subscription description"
+                />
+              </div>
+
+              <div className="flex flex-col gap-y-2">
+                <Label className="text-[#0D062D] font-medium">Amount</Label>
+                <Input
+                  type="number"
+                  {...register("amount", { valueAsNumber: true })}
+                  className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+                  placeholder="Enter amount"
+                />
+              </div>
+
+              <div className="flex flex-col gap-y-2">
+                <Label className="text-[#0D062D] font-medium">Type</Label>
+                <Select
+                  onValueChange={(value) => setValue("type", value)}
+                  defaultValue={SubscriptionType.MONTH}
+                >
+                  <SelectTrigger className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]">
+                    <SelectValue placeholder="Select subscription type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={SubscriptionType.MONTH}>
+                      Monthly
+                    </SelectItem>
+                    <SelectItem value={SubscriptionType.WEEK}>
+                      Weekly
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {type === SubscriptionType.MONTH && <MonthInput />}
+              {type === SubscriptionType.WEEK && <WeekInput />}
+
+              <Button
+                type="submit"
+                className="mt-6 bg-[#5030E5] hover:bg-[#4024B8] transition-colors"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select the subscription type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={SubscriptionType.MONTH}>Month</SelectItem>
-                  <SelectItem value={SubscriptionType.WEEK}>Week</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {type === SubscriptionType.MONTH && <MonthInput />}
-            {type === SubscriptionType.WEEK && <WeekInput />}
-            <Button className="mt-auto">Add Subscription</Button>
-          </form>
-        </div>
-      </FormProvider>
+                Create Subscription
+              </Button>
+            </form>
+          </FormProvider>
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -179,17 +217,24 @@ const MonthInput = () => {
   const { register } = methods;
 
   return (
-    <div className="flex items-center gap-x-2 w-full">
-      <div className="flex flex-col gap-y-2 w-full">
-        <Label>Payment Date</Label>
+    <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-y-2">
+        <Label className="text-[#0D062D] font-medium">Payment Date</Label>
         <Input
           type="number"
           {...register("payment", { valueAsNumber: true })}
+          className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+          placeholder="Enter payment date"
         />
       </div>
-      <div className="flex flex-col gap-y-2 w-full">
-        <Label>Alarm before days</Label>
-        <Input type="number" {...register("alarm", { valueAsNumber: true })} />
+      <div className="flex flex-col gap-y-2">
+        <Label className="text-[#0D062D] font-medium">Alarm Days Before</Label>
+        <Input
+          type="number"
+          {...register("alarm", { valueAsNumber: true })}
+          className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+          placeholder="Enter days before"
+        />
       </div>
     </div>
   );
@@ -200,46 +245,34 @@ const WeekInput = () => {
   const { setValue } = methods;
 
   return (
-    <div className="flex items-center gap-x-2 w-full">
-      <div className="flex flex-col gap-y-2 w-full">
-        <Label>Payment Day</Label>
-        <Select
-          onValueChange={(day) => {
-            setValue("payment", Number(day));
-          }}
-        >
-          <SelectTrigger>
+    <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-y-2">
+        <Label className="text-[#0D062D] font-medium">Payment Day</Label>
+        <Select onValueChange={(day) => setValue("payment", Number(day))}>
+          <SelectTrigger className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]">
             <SelectValue placeholder="Select payment day" />
           </SelectTrigger>
           <SelectContent>
-            {DateLibs.WEEK_DAYS.map((day) => {
-              return (
-                <SelectItem value={String(day)} key={DateLibs.formatDay(day)}>
-                  {DateLibs.formatDay(day)}
-                </SelectItem>
-              );
-            })}
+            {DateLibs.WEEK_DAYS.map((day) => (
+              <SelectItem value={String(day)} key={DateLibs.formatDay(day)}>
+                {DateLibs.formatDay(day)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
-      <div className="flex flex-col gap-y-2 w-full">
-        <Label>Alarm Day</Label>
-        <Select
-          onValueChange={(day) => {
-            setValue("alarm", Number(day));
-          }}
-        >
-          <SelectTrigger>
+      <div className="flex flex-col gap-y-2">
+        <Label className="text-[#0D062D] font-medium">Alarm Day</Label>
+        <Select onValueChange={(day) => setValue("alarm", Number(day))}>
+          <SelectTrigger className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]">
             <SelectValue placeholder="Select alarm day" />
           </SelectTrigger>
           <SelectContent>
-            {DateLibs.WEEK_DAYS.map((day) => {
-              return (
-                <SelectItem value={String(day)} key={DateLibs.formatDay(day)}>
-                  {DateLibs.formatDay(day)}
-                </SelectItem>
-              );
-            })}
+            {DateLibs.WEEK_DAYS.map((day) => (
+              <SelectItem value={String(day)} key={DateLibs.formatDay(day)}>
+                {DateLibs.formatDay(day)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

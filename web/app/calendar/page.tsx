@@ -1,8 +1,11 @@
 "use client";
 
 import BottomNavigation from "@/components/BottomNavigation";
+import { usePreferences } from "@/hooks/usePreferences";
+import { formatAmount } from "@/lib/currency";
 import { DateLibs } from "@/lib/date";
 import { SubscriptionType } from "@/lib/subscription/enum";
+import { cn } from "@/lib/utils";
 import { Subscription } from "@/models/subscription";
 import { usePocketClient } from "@/provider/PocketBase";
 import useCalendar from "@nwleedev/use-calendar";
@@ -16,6 +19,7 @@ import {
   isValid,
   subMonths,
 } from "date-fns";
+import { motion } from "framer-motion";
 import { CircleChevronLeft, CircleChevronRight } from "lucide-react";
 import Link from "next/link";
 import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
@@ -97,6 +101,7 @@ export default function Page() {
   const info = toInfo(calendarDate);
   const subInfo = toInfo(selectedDate);
   const pb = usePocketClient();
+  const { currency } = usePreferences();
   const { data } = useQuery({
     queryKey: [
       "SUBSCRIPTION_BY_DATE",
@@ -116,106 +121,140 @@ export default function Page() {
   });
 
   return (
-    <div className="flex flex-col w-full gap-y-4 flex-1">
-      <div className="w-full flex items-center h-[60px] justify-between gap-x-4 px-4 shadow-sm">
-        <h2 className="font-semibold whitespace-nowrap flex-shrink-0">
-          Calendar
-        </h2>
-        <div className="w-full flex items-center justify-end gap-x-4"></div>
+    <div className="flex flex-col w-full min-h-screen bg-[#F5F5F5]">
+      {/* Header */}
+      <div className="w-full flex items-center h-[70px] justify-between px-6 bg-white shadow-sm sticky top-0 bottom-auto z-10">
+        <h2 className="text-xl font-bold text-[#0D062D]">Calendar</h2>
+        <div className="flex items-center gap-x-4"></div>
       </div>
-      <div className="flex flex-col w-full flex-1 p-4 gap-y-6">
-        <div className="flex w-full flex-col gap-y-2">
-          <div className="flex justify-between w-full">
-            <div className="flex flex-col">
-              <h2 className="font-semibold">{info.month}</h2>
-            </div>
-            <div className="flex gap-x-2 items-end">
-              <button onClick={() => onDateChange(subMonths(calendarDate, 1))}>
-                <CircleChevronLeft className="stroke-[1.5]" />
-              </button>
-              <button onClick={() => onDateChange(addMonths(calendarDate, 1))}>
-                <CircleChevronRight className="stroke-[1.5]" />
-              </button>
-            </div>
-          </div>
-          <div className="w-full flex justify-center">
-            <div className="grid grid-cols-7 py-2 rounded bg-white w-full gap-y-1.5 gap-x-1">
-              {days.map((day) => {
-                const current = getMonth(day) === getMonth(calendarDate);
-                const classNames = getClassnames(day, selectedDate);
-                const href = getDayHref(params, day);
 
-                return (
-                  <div
-                    key={day.getTime()}
-                    className="flex justify-center items-center"
-                  >
-                    {current && (
-                      <Link href={href} className={classNames.div}>
-                        <span className={classNames.span}>
-                          {format(day, "dd")}
-                        </span>
-                      </Link>
-                    )}
-                  </div>
-                );
-              })}
+      {/* Main Content */}
+      <div className="flex flex-col flex-1 p-6 gap-y-6">
+        {/* Calendar Section */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="flex w-full flex-col gap-y-6">
+            <div className="flex justify-between w-full items-center">
+              <div className="flex flex-col">
+                <h2 className="text-lg font-bold text-[#0D062D]">
+                  {info.month}
+                </h2>
+              </div>
+              <div className="flex gap-x-3 items-center">
+                <button
+                  onClick={() => onDateChange(subMonths(calendarDate, 1))}
+                  className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <CircleChevronLeft className="w-5 h-5 text-[#787486] stroke-[1.5]" />
+                </button>
+                <button
+                  onClick={() => onDateChange(addMonths(calendarDate, 1))}
+                  className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <CircleChevronRight className="w-5 h-5 text-[#787486] stroke-[1.5]" />
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="flex flex-col w-full flex-1 gap-y-2">
-          <div className="flex w-full flex-col gap-y-1">
-            <h2>
-              <span className="text-3xl font-semibold">{subInfo.day}</span>{" "}
-              <span className="font-medium">{subInfo.month}</span>
-            </h2>
-            {data && (
-              <p className="text-xs font-normal text-slate-500">
-                {data.length} subscriptions
-              </p>
-            )}
-          </div>
-          <div className="flex w-full flex-col p-2 px-4 divide-y flex-1 rounded bg-white">
-            <Suspense>
-              {data &&
-                data.map((sub) => {
-                  const { id } = sub;
-                  function getText() {
-                    if (sub.type === SubscriptionType.MONTH) {
-                      return `Alarm before ${DateLibs.formatBeforeDays(
-                        sub.alarm
-                      )}`;
-                    } else {
-                      return `Alarm on ${DateLibs.formatDay(sub.alarm)}`;
-                    }
-                  }
-                  const text = getText();
+
+            <div className="w-full flex justify-center">
+              <div className="grid grid-cols-7 py-4 w-full gap-y-4 gap-x-1">
+                {days.map((day) => {
+                  const current = getMonth(day) === getMonth(calendarDate);
+                  const classNames = getClassnames(day, selectedDate);
+                  const href = getDayHref(params, day);
+
                   return (
                     <div
-                      key={id}
-                      className="w-full flex py-3 items-center justify-between"
+                      key={day.getTime()}
+                      className="flex justify-center items-center"
                     >
-                      <div className="flex flex-col">
-                        <div className="flex gap-x-2 items-center">
-                          {sub.icon && (
-                            <span className="text-3xl">{sub.icon}</span>
+                      {current && (
+                        <Link
+                          href={href}
+                          className={cn(
+                            classNames.div,
+                            "hover:bg-gray-50 transition-colors rounded-full"
                           )}
-                          <div className="flex flex-col">
-                            <h3 className="font-semibold">{sub.name}</h3>
-                            <p className="text-xs font-normal">{text}</p>
-                          </div>
-                        </div>
-                        <div></div>
-                      </div>
-                      <span className="font-medium">{sub.amount}</span>
+                        >
+                          <span className={classNames.span}>
+                            {format(day, "dd")}
+                          </span>
+                        </Link>
+                      )}
                     </div>
                   );
                 })}
-            </Suspense>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Subscriptions Section */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm flex-1">
+          <div className="flex flex-col w-full gap-y-6">
+            <div className="flex w-full flex-col gap-y-2">
+              <h2 className="text-lg font-bold text-[#0D062D]">
+                <span className="text-2xl">{subInfo.day}</span>{" "}
+                <span>{subInfo.month}</span>
+              </h2>
+              {data && (
+                <p className="text-sm text-[#787486]">
+                  {data.length} subscriptions
+                </p>
+              )}
+            </div>
+
+            <div className="flex w-full flex-col divide-y divide-gray-100">
+              <Suspense>
+                {data &&
+                  data.map((sub) => {
+                    const { id } = sub;
+                    function getText() {
+                      if (sub.type === SubscriptionType.MONTH) {
+                        return `Alarm before ${DateLibs.formatBeforeDays(
+                          sub.alarm
+                        )}`;
+                      } else {
+                        return `Alarm on ${DateLibs.formatDay(sub.alarm)}`;
+                      }
+                    }
+                    const text = getText();
+                    return (
+                      <motion.div
+                        key={id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="w-full flex py-4 items-center justify-between hover:bg-gray-50 transition-colors px-4 rounded-lg"
+                      >
+                        <div className="flex flex-col gap-y-1">
+                          <div className="flex gap-x-3 items-center">
+                            {sub.icon && (
+                              <span className="text-2xl">{sub.icon}</span>
+                            )}
+                            <div className="flex flex-col">
+                              <h3 className="font-semibold text-[#0D062D]">
+                                {sub.name}
+                              </h3>
+                              <p className="text-sm text-[#787486]">{text}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="font-medium text-[#0D062D]">
+                          {formatAmount(sub.amount, currency)}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+              </Suspense>
+            </div>
           </div>
         </div>
       </div>
-      <BottomNavigation />
+
+      {/* Bottom Navigation */}
+      <div className="bg-white sticky bottom-0 top-auto">
+        <BottomNavigation />
+      </div>
     </div>
   );
 }
