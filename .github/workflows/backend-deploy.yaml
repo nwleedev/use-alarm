@@ -21,9 +21,9 @@ jobs:
           script: |
             whoami
             cd /home/ubuntu
-            echo 'echo ${{ secrets.REMOTE_SSH_USERNAME }}'
+            echo 'echo ${{ secrets.REMOTE_SSH_USERNAME }}' > ~/.ssh/passphrase && chmod 700 ~/.ssh/passphrase
             eval `ssh-agent -s`
-            ssh-add /home/ubuntu/.ssh/id_ed25519
+            DISPLAY=None SSH_ASKPASS=~/.ssh/passphrase ssh-add /home/ubuntu/.ssh/id_ed25519
             cd /home/ubuntu/alarm-repo   
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh         
