@@ -121,9 +121,14 @@ cronAdd("notification", "0 */1 * * *", function () {
         )
       `;
 
+      // This offset is negative because it is based on UTC time.
+      // For example, if the user is in UTC+9, the offset is -9.
+      // This is why we need to multiply by -1.
+      const offset = userPrefs.timezoneOffset * -1;
+
       const response = $app.findAllRecords(
         "subscriptions",
-        $dbx.exp(expr1, { user: key, offset: userPrefs.timezoneOffset })
+        $dbx.exp(expr1, { user: key, offset })
       );
 
       const subscriptions = response.map((item) => {
@@ -142,6 +147,8 @@ cronAdd("notification", "0 */1 * * *", function () {
         };
         return sub;
       });
+
+      console.log(subscriptions.length);
 
       if (subscriptions.length > 0) {
         const notiResponse = $http.send({
