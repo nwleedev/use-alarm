@@ -11,8 +11,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: SSH Connection
-        uses: appleboy/ssh-action@v1
+      - name: SSH connection
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_SSH_HOST }}
           username: ${{ secrets.REMOTE_SSH_USERNAME }}
@@ -20,13 +20,10 @@ jobs:
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             whoami
-            eval `ssh-agent -s`
-            ssh-add ~/.ssh/id_ed25519
             cd /home/ubuntu/alarm-repo   
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh         
             sudo git pull
-            ${{ secrets.REMOTE_GIT_PASSWORD }}
             nvm use 22
             pnpm install
             sudo systemctl restart usealarmbackend
