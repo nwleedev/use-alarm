@@ -24,8 +24,18 @@ jobs:
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             whoami
-            cd /home/ubuntu/alarm-repo
+            cd /home/ubuntu/alarm-repo            
             git pull
+            ${{ secrets.REMOTE_GIT_PASSWORD }}
             nvm use 22
             pnpm install
             sudo systemctl restart usealarmbackend
+
+# Can I enter the password of github ssh before pulling?
+# I want to enter the password of github ssh before pulling.
+# I want to enter the password of github ssh before pulling.
+# I want to enter the password of github ssh before pulling.
+# I want to enter the password of github ssh before pulling.
+# I want to enter the password of github ssh before pulling.
+# I want to enter the password of github ssh before pulling.
+
