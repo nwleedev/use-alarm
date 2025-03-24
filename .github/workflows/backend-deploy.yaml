@@ -30,4 +30,6 @@ jobs:
             nvm use 22
             pnpm install
             sudo systemctl restart usealarmbackend
+            cd /home/ubuntu/alarm-repo/notification && pnpm tsc
+            pm2 restart alarm-notification
             rm ~/.ssh/passphrase.sh
