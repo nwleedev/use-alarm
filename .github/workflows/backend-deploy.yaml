@@ -20,6 +20,9 @@ jobs:
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             whoami
+            cd /home/ubuntu
+            eval `ssh-agent -s`
+            ssh-add /home/ubuntu/.ssh/id_ed25519
             cd /home/ubuntu/alarm-repo   
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh         
