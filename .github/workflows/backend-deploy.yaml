@@ -27,7 +27,6 @@ jobs:
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh         
             sudo git pull
-            {{ secrets.REMOTE_GIT_PASSWORD }}
             nvm use 22
             pnpm install
             sudo systemctl restart usealarmbackend
