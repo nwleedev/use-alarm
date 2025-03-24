@@ -19,11 +19,10 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            whoami
             cd /home/ubuntu
-            echo 'echo ${{ secrets.REMOTE_SSH_USERNAME }}' > ~/.ssh/passphrase && chmod 700 ~/.ssh/passphrase
+            echo 'echo ${{ secrets.REMOTE_GIT_PASSWORD }}' > ~/.ssh/passphrase.sh && chmod a+x ~/.ssh/passphrase.sh
             eval `ssh-agent -s`
-            DISPLAY=None SSH_ASKPASS=~/.ssh/passphrase ssh-add /home/ubuntu/.ssh/id_ed25519
+            DISPLAY=1 SSH_ASKPASS=~/.ssh/passphrase.sh SSH_ASKPASS_REQUIRE=force ssh-add /home/ubuntu/.ssh/id_ed25519
             cd /home/ubuntu/alarm-repo   
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh         
@@ -31,3 +30,4 @@ jobs:
             nvm use 22
             pnpm install
             sudo systemctl restart usealarmbackend
+            rm ~/.ssh/passphrase.sh
