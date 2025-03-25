@@ -149,7 +149,7 @@ export default function Page() {
       } else {
         queryClient.refetchQueries({ queryKey: ["SUBSCRIPTION_WEEK"] });
       }
-      router.push("/subscription/search");
+      router.push("/subscriptions");
     },
   });
 
@@ -171,7 +171,7 @@ export default function Page() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link
-                href="/subscription/search"
+                href="/subscriptions"
                 className="p-2 -ml-2 hover:bg-[#F5F5F5] rounded-full transition-colors"
               >
                 <ArrowLeft className="w-6 h-6 text-[#0D062D]" />

@@ -1,16 +1,7 @@
 "use client";
 
+import { EmojiSelectSheet } from "@/components/EmojiSelectSheet";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -21,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DateLibs } from "@/lib/date";
-import { EmojiLibs } from "@/lib/emoji";
 import { SubscriptionType } from "@/lib/subscription/enum";
 import {
   NewSubscriptionProps,
@@ -95,46 +85,12 @@ function EditForm() {
                   <p>{field.value}</p>
                 </div>
               )}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="bg-transparent border-dashed border border-black shadow-none text-black">
-                    Edit icon
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="w-[90%]">
-                  <DialogHeader>
-                    <DialogTitle>Select Emoji</DialogTitle>
-                    <DialogDescription>
-                      You can choose a emoji associated with this subscription.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="w-full flex justify-between">
-                    <div className="w-full h-[240px] overflow-y-scroll grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-y-3">
-                      {EmojiLibs.data.map((emoji) => {
-                        return (
-                          <DialogClose
-                            key={emoji}
-                            onClick={() => {
-                              setValue("icon", emoji);
-                            }}
-                            className="flex justify-center items-center text-xl"
-                          >
-                            {emoji}
-                          </DialogClose>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <DialogFooter className="flex gap-x-2 flex-row">
-                    <DialogClose asChild className="w-full">
-                      <Button>Cancel</Button>
-                    </DialogClose>
-                    <DialogClose asChild className="w-full">
-                      <Button>Enter</Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              <EmojiSelectSheet
+                trigger={<Button>Select a emoji</Button>}
+                onEmojiSelect={(emoji) => {
+                  setValue("icon", emoji);
+                }}
+              />
             </div>
           </div>
           <div className="flex flex-col gap-y-2">

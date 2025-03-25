@@ -1,16 +1,7 @@
 "use client";
 
+import { EmojiSelectSheet } from "@/components/EmojiSelectSheet";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -21,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DateLibs } from "@/lib/date";
-import { EmojiLibs } from "@/lib/emoji";
 import { SubscriptionType } from "@/lib/subscription/enum";
 import {
   NewSubscriptionProps,
@@ -72,7 +62,7 @@ export default function Page() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-[#F5F5F5]">
       {/* Header */}
-      <div className="w-full flex items-center h-[70px] justify-between px-6 bg-white shadow-sm">
+      <div className="w-full flex items-center h-[70px] justify-between px-6 bg-white shadow-sm sticky top-0">
         <div className="flex items-center gap-x-4">
           <Link
             href="/"
@@ -108,48 +98,12 @@ export default function Page() {
                 <Label className="text-[#0D062D] font-medium">Icon</Label>
                 <div className="flex gap-x-4 items-center">
                   {icon && <div className="p-2 text-2xl">{icon}</div>}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="bg-transparent border border-[#5030E5] text-[#5030E5] hover:bg-[#5030E5] hover:text-white transition-colors">
-                        Select Icon
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="w-[90%] bg-white p-6 rounded-2xl">
-                      <DialogHeader>
-                        <DialogTitle className="text-[#0D062D] text-xl font-bold">
-                          Select Emoji
-                        </DialogTitle>
-                        <DialogDescription className="text-[#787486]">
-                          Choose an emoji for your subscription
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="w-full flex justify-between">
-                        <div className="w-full h-[240px] overflow-y-scroll grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-4">
-                          {EmojiLibs.data.map((emoji) => (
-                            <DialogClose
-                              key={emoji}
-                              onClick={() => setValue("icon", emoji)}
-                              className="flex justify-center items-center text-2xl hover:bg-gray-50 p-2 rounded-lg transition-colors cursor-pointer"
-                            >
-                              {emoji}
-                            </DialogClose>
-                          ))}
-                        </div>
-                      </div>
-                      <DialogFooter className="flex gap-x-3">
-                        <DialogClose asChild>
-                          <Button className="flex-1 bg-gray-100 hover:bg-gray-200 text-[#0D062D]">
-                            Cancel
-                          </Button>
-                        </DialogClose>
-                        <DialogClose asChild>
-                          <Button className="flex-1 bg-[#5030E5] hover:bg-[#4024B8]">
-                            Select
-                          </Button>
-                        </DialogClose>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                  <EmojiSelectSheet
+                    trigger={<Button>Select a emoji</Button>}
+                    onEmojiSelect={(emoji) => {
+                      setValue("icon", emoji);
+                    }}
+                  />
                 </div>
               </div>
 
