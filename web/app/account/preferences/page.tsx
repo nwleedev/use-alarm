@@ -148,7 +148,6 @@ export default function Page() {
               <TimeSelect
                 value={preferences.hour}
                 onSelect={(value) => {
-                  console.log(value);
                   updatePreferences({ hour: value });
                 }}
               />

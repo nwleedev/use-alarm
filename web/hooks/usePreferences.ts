@@ -22,6 +22,7 @@ export function usePreferences() {
           user: client.authStore.record?.id,
           timezone: getLocalTimezone(),
           timezoneOffset: new Date().getTimezoneOffset(),
+          hour: 9,
           currency: getLocalCurrency(),
         });
       }

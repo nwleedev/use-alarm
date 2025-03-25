@@ -35,7 +35,7 @@
  *
  * @property {string} timezone
  * @property {number} timezoneOffset
- * @property {number} notificationHour
+ * @property {number} hour
  */
 
 cronAdd("notification", "0 */1 * * *", function () {
@@ -72,33 +72,35 @@ cronAdd("notification", "0 */1 * * *", function () {
       const notifications = notiMap[key];
 
       // Get user preferences
-      const preferences = $app.findFirstRecordByFilter(
+      const prefRecord = $app.findFirstRecordByFilter(
         "preferences",
         `user = "${key}"`
       );
 
       /** @type {UserPreferences} */
-      const userPrefs = preferences
+      const preference = prefRecord
         ? {
-            timezone: preferences.get("timezone"),
-            timezoneOffset: preferences.get("timezoneOffset"),
-            notificationHour: preferences.get("notificationHour") ?? 9,
+            timezone: prefRecord.get("timezone"),
+            timezoneOffset: prefRecord.get("timezoneOffset"),
+            hour: prefRecord.get("hour") ?? 9,
+            currency: prefRecord.get("currency"),
           }
         : {
             timezone: "UTC",
             timezoneOffset: 0,
-            notificationHour: 9,
+            hour: 9,
+            currency: "USD",
           };
 
       // Get current UTC hour
       const now = new Date();
       // Adjust current time based on user's timezone
-      now.setMinutes(now.getMinutes() - userPrefs.timezoneOffset);
+      now.setMinutes(now.getMinutes() - preference.timezoneOffset);
 
       const currentUTCHour = now.getUTCHours();
 
       // Only proceed if it's the user's preferred notification hour in UTC
-      if (currentUTCHour !== userPrefs.notificationHour) {
+      if (currentUTCHour !== preference.hour) {
         continue;
       }
 
@@ -124,7 +126,7 @@ cronAdd("notification", "0 */1 * * *", function () {
       // This offset is negative because it is based on UTC time.
       // For example, if the user is in UTC+9, the offset is -9.
       // This is why we need to multiply by -1.
-      const offset = userPrefs.timezoneOffset * -1;
+      const offset = preference.timezoneOffset * -1;
 
       const response = $app.findAllRecords(
         "subscriptions",
@@ -148,13 +150,15 @@ cronAdd("notification", "0 */1 * * *", function () {
         return sub;
       });
 
-      console.log(subscriptions.length);
-
       if (subscriptions.length > 0) {
         const notiResponse = $http.send({
           url: "http://127.0.0.1:3010",
           method: "POST",
-          body: JSON.stringify({ notifications, subscriptions }),
+          body: JSON.stringify({
+            notifications,
+            subscriptions,
+            preference,
+          }),
           timeout: 120,
           headers: {
             "content-type": "application/json",

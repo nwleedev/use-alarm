@@ -1,9 +1,11 @@
 import { format, setDay } from "date-fns";
 import dotenv from "dotenv";
 import Fastify from "fastify";
-import { Notification } from "models/notification";
-import { Subscription } from "models/subscription";
 import webpush from "web-push";
+import { formatAmount } from "./currency";
+import { Notification } from "./models/notification";
+import { Preference } from "./models/preference";
+import { Subscription } from "./models/subscription";
 
 dotenv.config();
 
@@ -23,9 +25,10 @@ const app = Fastify({
 
 app.post("/", async function (req, rep) {
   const body = req.body;
-  const { subscriptions, notifications } = body as {
+  const { subscriptions, notifications, preference } = body as {
     subscriptions: Subscription[];
     notifications: Notification[];
+    preference: Preference;
   };
 
   const response = await Promise.all(
@@ -36,13 +39,14 @@ app.post("/", async function (req, rep) {
         const title = sub.icon ? `${sub.icon} ${sub.name}` : sub.name;
         const payment = setDay(new Date(), sub.payment);
         const formattedDay = format(payment, "EEEE");
+        const amount = formatAmount(sub.amount, preference.currency);
 
         const body =
           sub.type === "MONTH"
-            ? `${sub.amount} will be charged after ${sub.alarm} ${
+            ? `${amount} will be charged after ${sub.alarm} ${
                 sub.alarm === 1 ? "day" : "days"
               }.`
-            : `${sub.amount} will be charged ${
+            : `${amount} will be charged ${
                 sub.alarm <= sub.payment ? "this" : "next"
               } ${formattedDay}`;
 
