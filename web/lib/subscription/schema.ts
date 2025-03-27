@@ -9,6 +9,7 @@ class SubscriptionSchemaLibs {
     type: zod.string().max(31).trim().optional(),
     payment: zod.number().max(31).min(0),
     alarm: zod.number().max(31).min(0),
+    category: zod.string().optional(),
   });
 }
 

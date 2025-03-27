@@ -1,8 +1,11 @@
 import { RecordModel } from "pocketbase";
 import { User } from "../user";
+import { Category } from "./category";
 
-export interface Subscription<HasUser extends boolean = false>
-  extends RecordModel {
+export interface Subscription<
+  HasUser extends boolean = false,
+  HasCategory extends boolean = true
+> extends RecordModel {
   id: string;
   name: string;
   description: string;
@@ -13,5 +16,8 @@ export interface Subscription<HasUser extends boolean = false>
   alarm: number;
   created: string;
   updated: string;
-  expand: HasUser extends true ? User : undefined;
+  expand: {
+    user: HasUser extends true ? User : undefined;
+    category: HasCategory extends true ? Category : undefined;
+  };
 }
