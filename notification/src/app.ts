@@ -48,7 +48,7 @@ app.post("/", async function (req, rep) {
               }.`
             : `${amount} will be charged ${
                 sub.alarm <= sub.payment ? "this" : "next"
-              } ${formattedDay}`;
+              } ${formattedDay}.`;
 
         try {
           await webpush.sendNotification(
