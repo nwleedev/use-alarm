@@ -13,6 +13,7 @@ import {
   Clock,
   CreditCard,
   Edit3,
+  Folder,
   MoreVertical,
   Trash2,
 } from "lucide-react";
@@ -131,7 +132,7 @@ export default function Page() {
       const [, id] = queryKey;
       const sub = (await client
         .collection("subscriptions")
-        .getOne(id)) as Subscription;
+        .getOne(id, { expand: "category" })) as Subscription;
       return sub;
     },
   });
@@ -233,9 +234,7 @@ export default function Page() {
                   <div>
                     <p className="text-sm">Billing Cycle</p>
                     <p className="text-[#0D062D] font-medium">
-                      {data.type === SubscriptionType.MONTH
-                        ? "Monthly"
-                        : "Weekly"}
+                      {data.type === SubscriptionType.MONTH ? "Month" : "Week"}
                     </p>
                   </div>
                 </div>
@@ -251,6 +250,15 @@ export default function Page() {
                       {data.type === SubscriptionType.MONTH
                         ? DateLibs.formatDate(data.payment)
                         : DateLibs.formatDay(data.payment, "EEEE")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-[#787486]">
+                  <Folder className="w-5 h-5" />
+                  <div>
+                    <p className="text-sm">Category</p>
+                    <p className="text-[#0D062D] font-medium">
+                      {data.expand?.category?.name || "Common"}
                     </p>
                   </div>
                 </div>

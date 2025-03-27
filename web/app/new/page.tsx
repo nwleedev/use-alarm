@@ -17,8 +17,10 @@ import {
   NewSubscriptionProps,
   SubscriptionSchemaLibs,
 } from "@/lib/subscription/schema";
+import { Category } from "@/models/subscription/category";
+import { usePocketClient } from "@/provider/PocketBase";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getDate, subDays } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
@@ -35,14 +37,26 @@ import { action } from "./action";
 export default function Page() {
   const [now] = useState(new Date());
   const client = useQueryClient();
+  const pocketClient = usePocketClient();
+
+  const { data: categories } = useQuery({
+    queryKey: ["CATEGORIES"],
+    queryFn: async () => {
+      const result = await pocketClient.collection("categories").getList();
+      return result.items as Category[];
+    },
+  });
+
   const methods = useForm<NewSubscriptionProps>({
     resolver: zodResolver(SubscriptionSchemaLibs.new),
     defaultValues: {
       type: SubscriptionType.MONTH,
       payment: getDate(now),
       alarm: getDate(subDays(now, 1)),
+      category: undefined,
     },
   });
+
   const { handleSubmit, register, setValue, control } = methods;
   const onSubmit = handleSubmit(async (form) => {
     await action(form);
@@ -108,6 +122,22 @@ export default function Page() {
               </div>
 
               <div className="flex flex-col gap-y-2">
+                <Label className="text-[#0D062D] font-medium">Category</Label>
+                <Select onValueChange={(value) => setValue("category", value)}>
+                  <SelectTrigger className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[40vh]">
+                    {categories?.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-y-2">
                 <Label className="text-[#0D062D] font-medium">
                   Description
                 </Label>
@@ -140,11 +170,9 @@ export default function Page() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={SubscriptionType.MONTH}>
-                      Monthly
+                      Month
                     </SelectItem>
-                    <SelectItem value={SubscriptionType.WEEK}>
-                      Weekly
-                    </SelectItem>
+                    <SelectItem value={SubscriptionType.WEEK}>Week</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

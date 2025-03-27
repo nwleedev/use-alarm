@@ -18,9 +18,11 @@ import {
   SubscriptionSchemaLibs,
 } from "@/lib/subscription/schema";
 import { Subscription } from "@/models/subscription";
+import { Category } from "@/models/subscription/category";
 import { usePocketClient } from "@/provider/PocketBase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -43,11 +45,20 @@ function EditForm() {
 
       const sub = (await client
         .collection("subscriptions")
-        .getOne(id)) as Subscription;
+        .getOne(id, { expand: "category" })) as Subscription;
 
       return sub;
     },
   });
+
+  const { data: categories } = useQuery({
+    queryKey: ["CATEGORIES"],
+    queryFn: async () => {
+      const result = await client.collection("categories").getList();
+      return result.items as Category[];
+    },
+  });
+
   const methods = useForm<NewSubscriptionProps>({
     resolver: zodResolver(SubscriptionSchemaLibs.new),
     defaultValues: {
@@ -58,74 +69,123 @@ function EditForm() {
       amount: data?.amount,
       payment: data?.payment,
       alarm: data?.alarm,
+      category: data?.expand.category.id,
     },
   });
+
   const { register, handleSubmit, formState, setValue, control } = methods;
   const onSubmit = handleSubmit(async (form) => {
     await action(id, form);
-
     refetch();
   });
+
   const { field } = useController({ control, name: "icon" });
   const { field: type } = useController({ control, name: "type" });
+
   return (
-    <div className="w-full flex flex-col p-4">
-      <FormProvider {...methods}>
-        <form onSubmit={onSubmit} className="flex flex-col gap-y-4">
-          <div></div>
-          <div className="flex flex-col gap-y-2">
-            <Label>Name</Label>
-            <Input type="text" {...register("name")} />
-          </div>
-          <div className="flex flex-col gap-y-2">
-            <Label>Icon</Label>
-            <div className="w-full flex gap-x-4 items-center">
-              {field.value && (
-                <div className="p-2">
-                  <p>{field.value}</p>
-                </div>
-              )}
-              <EmojiSelectSheet
-                trigger={<Button>Select a emoji</Button>}
-                onEmojiSelect={(emoji) => {
-                  setValue("icon", emoji);
-                }}
+    <div className="flex flex-col flex-1 p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white rounded-2xl shadow-sm p-6"
+      >
+        <FormProvider {...methods}>
+          <form onSubmit={onSubmit} className="flex flex-col gap-y-6">
+            <div className="flex flex-col gap-y-2">
+              <Label className="text-[#0D062D] font-medium">Name</Label>
+              <Input
+                type="text"
+                {...register("name")}
+                className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+                placeholder="Enter subscription name"
               />
             </div>
-          </div>
-          <div className="flex flex-col gap-y-2">
-            <Label>Description</Label>
-            <Input type="text" {...register("description")} />
-          </div>
-          <div className="flex flex-col gap-y-2">
-            <Label>Amount</Label>
-            <Input
-              type="number"
-              {...register("amount", { valueAsNumber: true })}
-            />
-          </div>
-          <div className="flex flex-col gap-y-2 w-full">
-            <Label>Type</Label>
-            <Select
-              onValueChange={(value) => {
-                setValue("type", value);
-              }}
-              defaultValue={data?.type}
+
+            <div className="flex flex-col gap-y-2">
+              <Label className="text-[#0D062D] font-medium">Icon</Label>
+              <div className="flex gap-x-4 items-center">
+                {field.value && (
+                  <div className="p-2 text-2xl">{field.value}</div>
+                )}
+                <EmojiSelectSheet
+                  trigger={<Button>Select a emoji</Button>}
+                  onEmojiSelect={(emoji) => {
+                    setValue("icon", emoji);
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-y-2">
+              <Label className="text-[#0D062D] font-medium">Category</Label>
+              <Select
+                onValueChange={(value) => setValue("category", value)}
+                defaultValue={data?.expand.category.id}
+              >
+                <SelectTrigger className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[40vh]">
+                  {categories?.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-y-2">
+              <Label className="text-[#0D062D] font-medium">Description</Label>
+              <Input
+                type="text"
+                {...register("description")}
+                className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+                placeholder="Enter subscription description"
+              />
+            </div>
+
+            <div className="flex flex-col gap-y-2">
+              <Label className="text-[#0D062D] font-medium">Amount</Label>
+              <Input
+                type="number"
+                {...register("amount", { valueAsNumber: true })}
+                className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+                placeholder="Enter amount"
+              />
+            </div>
+
+            <div className="flex flex-col gap-y-2">
+              <Label className="text-[#0D062D] font-medium">Type</Label>
+              <Select
+                onValueChange={(value) => setValue("type", value)}
+                defaultValue={data?.type}
+              >
+                <SelectTrigger className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]">
+                  <SelectValue placeholder="Select subscription type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={SubscriptionType.MONTH}>
+                    Monthly
+                  </SelectItem>
+                  <SelectItem value={SubscriptionType.WEEK}>Weekly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {type.value === SubscriptionType.MONTH && <MonthInput />}
+            {type.value === SubscriptionType.WEEK && <WeekInput />}
+
+            <Button
+              type="submit"
+              className="mt-6 bg-[#5030E5] hover:bg-[#4024B8] transition-colors"
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select the subscription type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={SubscriptionType.MONTH}>Month</SelectItem>
-                <SelectItem value={SubscriptionType.WEEK}>Week</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {type.value === SubscriptionType.MONTH && <MonthInput />}
-          {type.value === SubscriptionType.WEEK && <WeekInput />}
-          <Button>Edit Subscription</Button>
-        </form>
-      </FormProvider>
+              Edit Subscription
+            </Button>
+          </form>
+        </FormProvider>
+      </motion.div>
     </div>
   );
 }
@@ -135,17 +195,24 @@ const MonthInput = () => {
   const { register } = methods;
 
   return (
-    <div className="flex items-center gap-x-2 w-full">
-      <div className="flex flex-col gap-y-2 w-full">
-        <Label>Payment Day</Label>
+    <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-y-2">
+        <Label className="text-[#0D062D] font-medium">Payment Date</Label>
         <Input
           type="number"
           {...register("payment", { valueAsNumber: true })}
+          className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+          placeholder="Enter payment date"
         />
       </div>
-      <div className="flex flex-col gap-y-2 w-full">
-        <Label>Alarm Day</Label>
-        <Input type="number" {...register("alarm", { valueAsNumber: true })} />
+      <div className="flex flex-col gap-y-2">
+        <Label className="text-[#0D062D] font-medium">Alarm Days Before</Label>
+        <Input
+          type="number"
+          {...register("alarm", { valueAsNumber: true })}
+          className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]"
+          placeholder="Enter days before"
+        />
       </div>
     </div>
   );
@@ -158,48 +225,44 @@ const WeekInput = () => {
   const { field: payment } = useController({ control, name: "payment" });
 
   return (
-    <div className="flex items-center gap-x-2 w-full">
-      <div className="flex flex-col gap-y-2 w-full">
-        <Label>Payment Day</Label>
+    <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-y-2">
+        <Label className="text-[#0D062D] font-medium">Payment Day</Label>
         <Select
           defaultValue={String(payment.value)}
           onValueChange={(day) => {
             setValue("payment", Number(day));
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]">
             <SelectValue placeholder="Select payment day" />
           </SelectTrigger>
           <SelectContent>
-            {DateLibs.WEEK_DAYS.map((day) => {
-              return (
-                <SelectItem value={String(day)} key={DateLibs.formatDay(day)}>
-                  {DateLibs.formatDay(day)}
-                </SelectItem>
-              );
-            })}
+            {DateLibs.WEEK_DAYS.map((day) => (
+              <SelectItem value={String(day)} key={DateLibs.formatDay(day)}>
+                {DateLibs.formatDay(day)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
-      <div className="flex flex-col gap-y-2 w-full">
-        <Label>Alarm Day</Label>
+      <div className="flex flex-col gap-y-2">
+        <Label className="text-[#0D062D] font-medium">Alarm Day</Label>
         <Select
           defaultValue={String(alarm.value)}
           onValueChange={(day) => {
             setValue("alarm", Number(day));
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]">
             <SelectValue placeholder="Select alarm day" />
           </SelectTrigger>
           <SelectContent>
-            {DateLibs.WEEK_DAYS.map((day) => {
-              return (
-                <SelectItem value={String(day)} key={DateLibs.formatDay(day)}>
-                  {DateLibs.formatDay(day)}
-                </SelectItem>
-              );
-            })}
+            {DateLibs.WEEK_DAYS.map((day) => (
+              <SelectItem value={String(day)} key={DateLibs.formatDay(day)}>
+                {DateLibs.formatDay(day)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -217,21 +280,29 @@ export default function Page() {
 
       const sub = (await client
         .collection("subscriptions")
-        .getOne(id)) as Subscription;
+        .getOne(id, { expand: "category" })) as Subscription;
 
       return sub;
     },
   });
+
   return (
-    <div className="">
-      <div className="h-[60px] w-full flex items-center p-4 gap-x-2 shadow-sm">
-        <Link href="/">
-          <ChevronLeft />
-        </Link>
-        <h2 className="font-semibold whitespace-nowrap flex-shrink-0">
-          Edit Subscription
-        </h2>
+    <div className="flex flex-col w-full min-h-screen bg-[#F5F5F5]">
+      {/* Header */}
+      <div className="w-full flex items-center h-[70px] justify-between px-6 bg-white shadow-sm sticky top-0">
+        <div className="flex items-center gap-x-4">
+          <Link
+            href="/"
+            className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-[#787486]" />
+          </Link>
+          <h2 className="text-xl font-bold text-[#0D062D]">
+            Edit Subscription
+          </h2>
+        </div>
       </div>
+
       <Suspense>{isFetched && <EditForm />}</Suspense>
     </div>
   );
