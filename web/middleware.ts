@@ -17,7 +17,7 @@ export default async function middleware(request: NextRequest) {
   const isAuthenticated = await getIsAuthenticated();
 
   const isSignPage =
-    request.url.includes("/join") || request.url.includes("/oauth2/google");
+    request.url.includes("/join") || request.url.includes("/oauth2");
 
   const origin = new URL(request.url);
 
