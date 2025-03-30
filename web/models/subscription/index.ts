@@ -18,6 +18,6 @@ export interface Subscription<
   updated: string;
   expand: {
     user: HasUser extends true ? User : undefined;
-    category: HasCategory extends true ? Category : undefined;
+    category: HasCategory extends true ? Category | undefined : undefined;
   };
 }

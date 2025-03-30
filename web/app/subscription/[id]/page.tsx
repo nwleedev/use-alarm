@@ -1,6 +1,8 @@
 "use client";
 
 import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { usePreferences } from "@/hooks/usePreferences";
+import { formatAmount } from "@/lib/currency";
 import { DateLibs } from "@/lib/date";
 import { SubscriptionType } from "@/lib/subscription/enum";
 import { Subscription } from "@/models/subscription";
@@ -126,6 +128,8 @@ export default function Page() {
   const [isDeleteSheetOpen, setIsDeleteSheetOpen] = useState(false);
   const [isMoreActionsOpen, setIsMoreActionsOpen] = useState(false);
 
+  const { preferences } = usePreferences();
+
   const { data, isLoading } = useQuery({
     queryKey: ["SUBSCRIPTION", id] as const,
     queryFn: async ({ queryKey }) => {
@@ -154,13 +158,14 @@ export default function Page() {
     },
   });
 
-  if (isLoading || !data) {
+  if (isLoading || !data || !preferences) {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
         <div className="text-[#787486]">Loading...</div>
       </div>
     );
   }
+  const amount = formatAmount(data?.amount, preferences.currency);
 
   const status = (data.status || "Active") as keyof typeof statusColors;
 
@@ -226,7 +231,7 @@ export default function Page() {
                   <CreditCard className="w-5 h-5" />
                   <div>
                     <p className="text-sm">Amount</p>
-                    <p className="text-[#0D062D] font-medium">${data.amount}</p>
+                    <p className="text-[#0D062D] font-medium">{amount}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-[#787486]">

@@ -69,7 +69,7 @@ function EditForm() {
       amount: data?.amount,
       payment: data?.payment,
       alarm: data?.alarm,
-      category: data?.expand.category.id,
+      category: data?.expand.category?.id,
     },
   });
 
@@ -121,7 +121,7 @@ function EditForm() {
               <Label className="text-[#0D062D] font-medium">Category</Label>
               <Select
                 onValueChange={(value) => setValue("category", value)}
-                defaultValue={data?.expand.category.id}
+                defaultValue={data?.expand.category?.id}
               >
                 <SelectTrigger className="border-gray-200 focus:border-[#5030E5] focus:ring-[#5030E5]">
                   <SelectValue placeholder="Select category" />
