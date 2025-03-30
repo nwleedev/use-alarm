@@ -1,6 +1,6 @@
 "use client";
 
-import ReactQueryLibs from "@/lib/react-query";
+import * as ReactQueryLibs from "@/lib/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren } from "react";
 

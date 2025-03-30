@@ -2,26 +2,22 @@ import { isServer, QueryClient } from "@tanstack/react-query";
 
 let browserQueryClient: QueryClient | null = null;
 
-class ReactQueryLibs {
-  static createClient() {
-    return new QueryClient({
-      defaultOptions: {
-        queries: {
-          staleTime: 1000 * 60,
-        },
+export function createClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60,
       },
-    });
-  }
-
-  static getClient() {
-    if (isServer) {
-      return ReactQueryLibs.createClient();
-    }
-    if (!browserQueryClient) {
-      browserQueryClient = ReactQueryLibs.createClient();
-    }
-    return browserQueryClient;
-  }
+    },
+  });
 }
 
-export default ReactQueryLibs;
+export function getClient() {
+  if (isServer) {
+    return createClient();
+  }
+  if (!browserQueryClient) {
+    browserQueryClient = createClient();
+  }
+  return browserQueryClient;
+}

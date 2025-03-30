@@ -1,6 +1,6 @@
 "use client";
 
-import PocketBaseLibs from "@/lib/pocket-base";
+import * as PocketBaseLibs from "@/lib/pocket-base";
 import PocketBase from "pocketbase";
 import { createContext, PropsWithChildren, useContext, useEffect } from "react";
 

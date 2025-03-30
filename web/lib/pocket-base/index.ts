@@ -2,26 +2,20 @@ import PocketBase from "pocketbase";
 
 let browserPocketClient: PocketBase | null = null;
 
-export class PocketBaseLibs {
-  static createClient(baseURL: string) {
-    return new PocketBase(baseURL);
-  }
-
-  static getClient() {
-    const isServer = typeof window === "undefined" || "Deno" in globalThis;
-
-    if (isServer) {
-      return PocketBaseLibs.createClient(process.env.NEXT_PUBLIC_API_URL);
-    }
-
-    if (!browserPocketClient) {
-      browserPocketClient = PocketBaseLibs.createClient(
-        process.env.NEXT_PUBLIC_API_URL
-      );
-    }
-
-    return browserPocketClient;
-  }
+export function createClient(baseURL: string) {
+  return new PocketBase(baseURL);
 }
 
-export default PocketBaseLibs;
+export function getClient() {
+  const isServer = typeof window === "undefined" || "Deno" in globalThis;
+
+  if (isServer) {
+    return createClient(process.env.NEXT_PUBLIC_API_URL);
+  }
+
+  if (!browserPocketClient) {
+    browserPocketClient = createClient(process.env.NEXT_PUBLIC_API_URL);
+  }
+
+  return browserPocketClient;
+}

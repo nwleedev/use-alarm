@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { isNotNil } from "ramda";
-import { PocketBaseLibs } from "./lib/pocket-base";
+import * as PocketBaseLibs from "./lib/pocket-base";
 
 export default async function middleware(request: NextRequest) {
   const client = PocketBaseLibs.getClient();
@@ -15,8 +15,9 @@ export default async function middleware(request: NextRequest) {
   }
 
   const isAuthenticated = await getIsAuthenticated();
+
   const isSignPage =
-    request.url.includes("/signin") || request.url.includes("/signup");
+    request.url.includes("/join") || request.url.includes("/oauth2/google");
 
   const origin = new URL(request.url);
 
@@ -31,7 +32,7 @@ export default async function middleware(request: NextRequest) {
     return response;
   }
   if (!isSignPage && !isAuthenticated) {
-    const redirect = NextResponse.redirect(new URL("/signin", origin));
+    const redirect = NextResponse.redirect(new URL("/join", origin));
     return redirect;
   }
 

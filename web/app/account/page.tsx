@@ -79,7 +79,7 @@ export default function Page() {
     });
     document.cookie = exportedCookie;
     await client.collection("users").authRefresh();
-    router.push("/signin");
+    router.push("/join");
   };
 
   if (!user) {
