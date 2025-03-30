@@ -10,6 +10,7 @@ export default function Page() {
   const client = usePocketClient();
   const searchParams = useSearchParams();
   const router = useRouter();
+
   useEffect(() => {
     async function onAuth() {
       await action(searchParams.toString());
@@ -39,7 +40,9 @@ export default function Page() {
             <p className="text-[#787486] mt-2">Please wait for seconds.</p>
           </div>
 
-          <div className="w-full flex items-center justify-center gap-y-1"></div>
+          <div className="w-full flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5030E5]"></div>
+          </div>
         </div>
       </motion.div>
     </div>

@@ -32,14 +32,13 @@ export default function Page() {
             <p className="text-[#787486] mt-2">Sign in to continue</p>
           </div>
 
-          <div className="w-full flex items-center justify-center gap-y-1">
+          <div className="w-full flex flex-col items-center justify-center gap-y-4">
             {auths?.oauth2.providers.map((provider) => {
               return (
                 <Button
-                  className="text-[#5030E5] hover:text-[#4024B8] transition-colors font-medium bg-white"
-                  // href={href}
                   key={provider.name}
                   onClick={() => action(provider)}
+                  className="w-full bg-white border border-[#5030E5] text-[#5030E5] hover:bg-[#5030E5] hover:text-white transition-colors font-medium"
                 >
                   Sign in with {provider.displayName}
                 </Button>

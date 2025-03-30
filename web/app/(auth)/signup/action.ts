@@ -2,7 +2,7 @@
 
 import { AuthSchemaLibs, SignUpProps } from "@/lib/auth/schema";
 import { getLocalCurrency } from "@/lib/currency";
-import { PocketBaseLibs } from "@/lib/pocket-base";
+import * as PocketBaseLibs from "@/lib/pocket-base";
 import { getLocalTimezone } from "@/lib/timezone";
 
 export async function action(formData: SignUpProps) {

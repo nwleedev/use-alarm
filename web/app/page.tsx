@@ -50,7 +50,7 @@ export default function Home() {
       {/* Main Content */}
       <div className="flex flex-col flex-1 p-6 gap-y-6">
         {subs && (
-          <div className="w-full">
+          <div className="w-full flex flex-col flex-1">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-[#0D062D]">
                 Latest Subscriptions
@@ -63,7 +63,7 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="bg-white rounded-2xl p-4 shadow-sm">
+            <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col flex-1">
               <div className="flex flex-col divide-y divide-gray-100">
                 {subs.items.map((sub) => {
                   if (sub.type === SubscriptionType.MONTH) {

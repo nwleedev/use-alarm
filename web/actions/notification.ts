@@ -1,6 +1,6 @@
 "use server";
 
-import PocketBaseLibs from "@/lib/pocket-base";
+import * as PocketBaseLibs from "@/lib/pocket-base";
 import { cookies } from "next/headers";
 
 export const action = async (subscription: PushSubscriptionJSON) => {
