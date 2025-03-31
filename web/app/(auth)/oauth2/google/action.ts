@@ -1,10 +1,12 @@
 "use server";
 
+import { getLocalCurrency } from "@/lib/currency";
 import * as PocketBaseLibs from "@/lib/pocket-base";
+import { getLocalTimezone } from "@/lib/timezone";
 import { addDays } from "date-fns";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { AuthProviderInfo, cookieParse } from "pocketbase";
+import { AuthProviderInfo, ClientResponseError, cookieParse } from "pocketbase";
 
 export async function action(searchParams: string | URLSearchParams) {
   const client = PocketBaseLibs.getClient();
@@ -37,6 +39,23 @@ export async function action(searchParams: string | URLSearchParams) {
         emailVisibility: false,
       }
     );
+  try {
+    await client.collection("preferences").create({
+      user: client.authStore.record?.id,
+      timezone: getLocalTimezone(),
+      timezoneOffset: new Date().getTimezoneOffset(),
+      hour: 9,
+      currency: getLocalCurrency(),
+    });
+  } catch (error) {
+    if (
+      !(
+        error instanceof ClientResponseError &&
+        error.response.data.user.code === "validation_not_unique"
+      )
+    ) {
+    }
+  }
   const expires = addDays(new Date(), 7);
   const authCookie = client.authStore.exportToCookie({
     httpOnly: false,
@@ -55,5 +74,5 @@ export async function action(searchParams: string | URLSearchParams) {
     path: "/",
     secure: process.env.NODE_ENV === "production",
   });
-  return;
+  return {};
 }

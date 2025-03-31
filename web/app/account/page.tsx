@@ -81,7 +81,7 @@ export default function Page() {
       expires,
     });
     document.cookie = exportedCookie;
-    await client.collection("users").authRefresh();
+    client.authStore.clear();
     queryClient.clear();
     router.push("/join");
   };
