@@ -8,6 +8,7 @@ declare global {
       VAPID_PRIVATE_KEY: string;
       OAUTH2_REDIRECT_GOOGLE: string;
       OAUTH2_REDIRECT_GITHUB: string;
+      NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: string;
     }
   }
 }
