@@ -13,7 +13,7 @@ import { Fragment } from "react";
 
 export default function Home() {
   const client = usePocketClient();
-  const { data: subs } = useQuery({
+  const { data: subs, isLoading } = useQuery({
     queryKey: ["SUBSCRIPTIONS_LATEST"],
     queryFn: async () => {
       const months = await client
@@ -49,6 +49,11 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="flex flex-col flex-1 p-6 gap-y-6">
+        {isLoading && (
+          <div className="w-full flex flex-col flex-1">
+            <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col flex-1 justify-center items-center"></div>
+          </div>
+        )}
         {subs && (
           <div className="w-full flex flex-col flex-1">
             <div className="flex items-center justify-between mb-4">
@@ -92,6 +97,28 @@ export default function Home() {
                     return <Fragment key={null} />;
                   }
                 })}
+              </div>
+            </div>
+          </div>
+        )}
+        {subs && subs.totalItems === 0 && (
+          <div className="w-full flex flex-col flex-1">
+            <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col flex-1 justify-center items-center">
+              <div className="flex flex-col items-center gap-y-4">
+                <div className="flex flex-col items-center gap-y-2">
+                  <h2 className="text-xl font-bold text-[#0D062D]">
+                    No subscriptions yet
+                  </h2>
+                  <p className="text-lg text-[#787486]">
+                    Add a subscription to get started
+                  </p>
+                </div>
+                <Link
+                  href="/new"
+                  className="bg-[#5030E5] text-white px-4 py-2 rounded-lg"
+                >
+                  Add Subscription
+                </Link>
               </div>
             </div>
           </div>
