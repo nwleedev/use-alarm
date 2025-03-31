@@ -219,30 +219,32 @@ export default function Page() {
                     }
                     const text = getText();
                     return (
-                      <motion.div
-                        key={id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="w-full flex py-4 items-center justify-between hover:bg-gray-50 transition-colors px-4 rounded-lg"
-                      >
-                        <div className="flex flex-col gap-y-1">
-                          <div className="flex gap-x-3 items-center">
-                            {sub.icon && (
-                              <span className="text-2xl">{sub.icon}</span>
-                            )}
-                            <div className="flex flex-col">
-                              <h3 className="font-semibold text-[#0D062D]">
-                                {sub.name}
-                              </h3>
-                              <p className="text-sm text-[#787486]">{text}</p>
+                      <Link key={id} href={`/subscription/${id}`}>
+                        <motion.div
+                          key={id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="w-full flex py-4 items-center justify-between hover:bg-gray-50 transition-colors px-4 rounded-lg"
+                        >
+                          <div className="flex flex-col gap-y-1">
+                            <div className="flex gap-x-3 items-center">
+                              {sub.icon && (
+                                <span className="text-2xl">{sub.icon}</span>
+                              )}
+                              <div className="flex flex-col">
+                                <h3 className="font-semibold text-[#0D062D]">
+                                  {sub.name}
+                                </h3>
+                                <p className="text-sm text-[#787486]">{text}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <span className="font-medium text-[#0D062D]">
-                          {formatAmount(sub.amount, currency)}
-                        </span>
-                      </motion.div>
+                          <span className="font-medium text-[#0D062D]">
+                            {formatAmount(sub.amount, currency)}
+                          </span>
+                        </motion.div>
+                      </Link>
                     );
                   })}
               </Suspense>

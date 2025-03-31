@@ -176,12 +176,12 @@ export default function Page() {
         <div className="max-w-[1400px] mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link
-                href="/subscriptions"
+              <button
+                onClick={() => router.back()}
                 className="p-2 -ml-2 hover:bg-[#F5F5F5] rounded-full transition-colors"
               >
                 <ArrowLeft className="w-6 h-6 text-[#0D062D]" />
-              </Link>
+              </button>
               <h1 className="text-[#0D062D] text-lg font-semibold">Details</h1>
             </div>
             <button

@@ -14,7 +14,7 @@ export async function action(props: NewSubscriptionProps) {
   client.authStore.loadFromCookie(cookies().toString());
 
   if (!client.authStore.isValid) {
-    throw new Error("Not authenticated.");
+    return redirect("/join");
   }
 
   const user = client.authStore.record;

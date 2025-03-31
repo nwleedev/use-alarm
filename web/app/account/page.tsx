@@ -10,6 +10,7 @@ import { subMinutes } from "date-fns";
 import { motion } from "framer-motion";
 import {
   Bell,
+  BookOpen,
   ChevronRight,
   HelpCircle,
   LogOut,
@@ -168,6 +169,42 @@ export default function Page() {
               <h3 className="text-[#0D062D] font-medium">Preferences</h3>
               <p className="text-[#787486] text-sm">
                 Set your timezone and other preferences
+              </p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[#787486]" />
+          </Link>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-2xl shadow-sm overflow-hidden mt-6"
+        >
+          <Link
+            href={"/privacy-policy"}
+            className="w-full flex items-center gap-4 p-4 hover:bg-[#5030E510] transition-colors border-b border-[#F5F5F5] last:border-b-0"
+          >
+            <div className="text-[#787486]">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div className="flex-1 text-left">
+              <h3 className="text-[#0D062D] font-medium">Privacy Policy</h3>
+              <p className="text-[#787486] text-sm">Read our privacy policy</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[#787486]" />
+          </Link>
+          <Link
+            href={"/terms-of-service"}
+            className="w-full flex items-center gap-4 p-4 hover:bg-[#5030E510] transition-colors border-b border-[#F5F5F5] last:border-b-0"
+          >
+            <div className="text-[#787486]">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div className="flex-1 text-left">
+              <h3 className="text-[#0D062D] font-medium">Terms of Service</h3>
+              <p className="text-[#787486] text-sm">
+                Read our terms of service
               </p>
             </div>
             <ChevronRight className="w-5 h-5 text-[#787486]" />
