@@ -292,7 +292,7 @@ export default function Page() {
       <div className="w-full flex items-center h-[70px] justify-between px-6 bg-white shadow-sm sticky top-0">
         <div className="flex items-center gap-x-4">
           <Link
-            href="/"
+            href={`/subscription/${id}`}
             className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <ChevronLeft className="w-5 h-5 text-[#787486]" />

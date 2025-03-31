@@ -5,7 +5,8 @@ import AccountNotification from "@/components/Notification";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { User } from "@/models/user";
 import { usePocketClient } from "@/provider/PocketBase";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { subMinutes } from "date-fns";
 import { motion } from "framer-motion";
 import {
   Bell,
@@ -61,6 +62,7 @@ function SignOutSheet({
 
 export default function Page() {
   const client = usePocketClient();
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [isSignOutSheetOpen, setIsSignOutSheetOpen] = useState(false);
 
@@ -72,13 +74,14 @@ export default function Page() {
   });
 
   const onSignOut = async () => {
-    const expires = new Date();
+    const expires = subMinutes(new Date(), 1);
     const exportedCookie = client.authStore.exportToCookie({
       httpOnly: false,
       expires,
     });
     document.cookie = exportedCookie;
     await client.collection("users").authRefresh();
+    queryClient.clear();
     router.push("/join");
   };
 

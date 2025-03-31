@@ -16,7 +16,7 @@ export default function Page() {
       await action(searchParams.toString());
       client.authStore.loadFromCookie(document.cookie);
       await client.collection("users").authRefresh();
-      router.push("/");
+      router.push("/home");
     }
     onAuth();
   }, [client, router, searchParams]);

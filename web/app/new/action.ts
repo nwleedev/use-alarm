@@ -19,7 +19,9 @@ export async function action(props: NewSubscriptionProps) {
 
   const user = client.authStore.record;
 
-  await client.collection("subscriptions").create({ ...form, user: user?.id });
+  const record = await client
+    .collection("subscriptions")
+    .create({ ...form, user: user?.id });
 
-  redirect("/");
+  redirect("/home");
 }

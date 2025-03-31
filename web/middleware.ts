@@ -4,9 +4,13 @@ import { isNotNil } from "ramda";
 import * as PocketBaseLibs from "./lib/pocket-base";
 
 export default async function middleware(request: NextRequest) {
-  const client = PocketBaseLibs.getClient();
   const response = NextResponse.next();
 
+  if (request.nextUrl.pathname === "/") {
+    return response;
+  }
+
+  const client = PocketBaseLibs.getClient();
   async function getIsAuthenticated() {
     client.authStore.loadFromCookie(cookies().toString());
     const user = client.authStore.record;
@@ -25,7 +29,7 @@ export default async function middleware(request: NextRequest) {
     return response;
   }
   if (isSignPage && isAuthenticated) {
-    const redirect = NextResponse.redirect(new URL("/", origin));
+    const redirect = NextResponse.redirect(new URL("/home", origin));
     return redirect;
   }
   if (!isSignPage && isAuthenticated) {

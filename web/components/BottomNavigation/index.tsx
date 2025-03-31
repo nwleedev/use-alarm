@@ -27,12 +27,12 @@ function getClassnames(pathname: string, href: string = "/") {
 const BottomNavigation = () => {
   const pathname = usePathname();
 
-  const home = getClassnames(pathname, "/");
+  const home = getClassnames(pathname, "/home");
   const calendar = getClassnames(pathname, "/calendar");
   const account = getClassnames(pathname, "/account");
   return (
     <div className="w-full flex items-center justify-around border-t-2 border-b p-2 pt-2.5">
-      <Link href={"/"} className={home.item}>
+      <Link href={"/home"} className={home.item}>
         <House className={home.icon} />
         <span className={home.text}>Home</span>
       </Link>
